@@ -4,11 +4,18 @@ import Ajv from "ajv";
 import { execFile } from "node:child_process";
 import { mkdtemp, readdir, readFile, rm, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { extname, join, relative, resolve, sep } from "node:path";
+import { basename, extname, join, relative, resolve, sep } from "node:path";
 import { promisify } from "node:util";
 
 import { parseOptions, setOptionFlag, setOptionValue } from "./cli.js";
-import { bundleIdentifier, repositoryRoot, sourceIdentifier } from "./constants.js";
+import {
+  bundleIdentifier,
+  canonicalBaseUrl,
+  canonicalSourceUrl,
+  repositoryRoot,
+  sourceIdentifier,
+} from "./constants.js";
+import { ipaFileManifest } from "./ipa-metadata.js";
 
 const execFileAsync = promisify(execFile);
 const schemaUrl = "https://raw.githubusercontent.com/SideStore/sidestore-source-types/main/schema.json";
@@ -17,6 +24,7 @@ const generatorPath = resolve(repositoryRoot, "scripts/generate-source.js");
 const defaults = {
   sourcePath: "apps.json",
   checksumPath: "checksums.json",
+  ipaDirectory: "ipas",
   offlineFallback: true,
   legacyPurge: true,
 };
@@ -41,6 +49,7 @@ const parseArguments = (cliArguments) => parseOptions(
   {
     "--source": setOptionValue("sourcePath"),
     "--checksums": setOptionValue("checksumPath"),
+    "--ipa-dir": setOptionValue("ipaDirectory"),
     "--skip-offline-fallback": setOptionFlag("offlineFallback", false),
     "--skip-legacy-purge": setOptionFlag("legacyPurge", false),
   },
@@ -50,6 +59,88 @@ const parseArguments = (cliArguments) => parseOptions(
 const jsonDocument = async (jsonPath) => {
   const jsonText = await readFile(jsonPath, "utf8");
   return JSON.parse(jsonText);
+};
+
+const fileBuffer = async (filePath) => readFile(filePath);
+
+const relativePath = (entryPath) => relative(repositoryRoot, entryPath).split(sep).join("/");
+
+const filesMatch = async (leftPath, rightPath) => {
+  try {
+    const [leftBuffer, rightBuffer] = await Promise.all([
+      fileBuffer(leftPath),
+      fileBuffer(rightPath),
+    ]);
+
+    return leftBuffer.equals(rightBuffer);
+  } catch (filesystemError) {
+    if (filesystemError?.code === "ENOENT") {
+      return false;
+    }
+
+    throw filesystemError;
+  }
+};
+
+const assertFileExists = async (filePath, label, errors) => {
+  try {
+    const fileStats = await stat(filePath);
+
+    if (!fileStats.isFile()) {
+      errors.push(`${label} must be a file.`);
+      return null;
+    }
+
+    return fileStats;
+  } catch (filesystemError) {
+    if (filesystemError?.code === "ENOENT") {
+      errors.push(`${label} is missing.`);
+      return null;
+    }
+
+    throw filesystemError;
+  }
+};
+
+const canonicalOrigin = new URL(canonicalBaseUrl).origin;
+const legacyHost = "j1coding.github.io";
+const legacyPathPrefix = "/Armsx2-Repo";
+
+const parsedUrl = (urlValue) => {
+  try {
+    return new URL(urlValue);
+  } catch {
+    return null;
+  }
+};
+
+const isCanonicalPublicUrl = (urlValue) => {
+  const url = parsedUrl(urlValue);
+  return Boolean(url && url.origin === canonicalOrigin);
+};
+
+const containsLegacySourceUrl = (payload) => {
+  const payloadText = JSON.stringify(payload);
+  return payloadText.includes(legacyHost) && payloadText.includes(legacyPathPrefix);
+};
+
+const urlPathToRepositoryPath = (urlValue) => {
+  const url = parsedUrl(urlValue);
+
+  if (!url || url.origin !== canonicalOrigin) {
+    return null;
+  }
+
+  const pathSegments = url.pathname
+    .split("/")
+    .filter(Boolean)
+    .map((pathSegment) => decodeURIComponent(pathSegment));
+
+  if (pathSegments.some((pathSegment) => pathSegment === "." || pathSegment === "..")) {
+    return null;
+  }
+
+  return resolve(repositoryRoot, ...pathSegments);
 };
 
 const sideStoreSchema = async () => {
@@ -106,6 +197,14 @@ const validateStrictSourceShape = (sourceJson) => {
     errors.push(`apps.json identifier must be ${sourceIdentifier}.`);
   }
 
+  if (sourceJson.sourceURL !== canonicalSourceUrl) {
+    errors.push(`apps.json sourceURL must be ${canonicalSourceUrl}.`);
+  }
+
+  if (containsLegacySourceUrl(sourceJson)) {
+    errors.push("apps.json must not contain the old GitHub Pages source URL.");
+  }
+
   const forbiddenSourceKeys = ["buildVersion", "sha256", "appPermissions", "marketplaceID"];
 
   for (const forbiddenKey of forbiddenSourceKeys) {
@@ -121,20 +220,34 @@ const validateStrictSourceShape = (sourceJson) => {
       errors.push(`apps[${appIndex}].bundleIdentifier must be ${bundleIdentifier}.`);
     }
 
-    if (!Array.isArray(sourceApp.screenshotURLs) || sourceApp.screenshotURLs.length === 0) {
-      errors.push(`apps[${appIndex}].screenshotURLs must contain at least one screenshot URL.`);
-      continue;
+    if (!isCanonicalPublicUrl(sourceApp.iconURL)) {
+      errors.push(`apps[${appIndex}].iconURL must use ${canonicalBaseUrl}.`);
     }
 
-    for (const [screenshotIndex, screenshotURL] of sourceApp.screenshotURLs.entries()) {
-      try {
-        const parsedScreenshotURL = new URL(screenshotURL);
+    if (!Array.isArray(sourceApp.screenshotURLs) || sourceApp.screenshotURLs.length === 0) {
+      errors.push(`apps[${appIndex}].screenshotURLs must contain at least one screenshot URL.`);
+    } else {
+      for (const [screenshotIndex, screenshotURL] of sourceApp.screenshotURLs.entries()) {
+        const parsedScreenshotURL = parsedUrl(screenshotURL);
+
+        if (!parsedScreenshotURL) {
+          errors.push(`apps[${appIndex}].screenshotURLs[${screenshotIndex}] must be an absolute URL.`);
+          continue;
+        }
 
         if (parsedScreenshotURL.protocol !== "https:") {
           errors.push(`apps[${appIndex}].screenshotURLs[${screenshotIndex}] must use HTTPS.`);
         }
-      } catch {
-        errors.push(`apps[${appIndex}].screenshotURLs[${screenshotIndex}] must be an absolute URL.`);
+
+        if (parsedScreenshotURL.origin !== canonicalOrigin) {
+          errors.push(`apps[${appIndex}].screenshotURLs[${screenshotIndex}] must use ${canonicalBaseUrl}.`);
+        }
+      }
+    }
+
+    for (const [versionIndex, sourceVersion] of sourceApp.versions?.entries?.() ?? []) {
+      if (!isCanonicalPublicUrl(sourceVersion.downloadURL)) {
+        errors.push(`apps[${appIndex}].versions[${versionIndex}].downloadURL must use ${canonicalBaseUrl}.`);
       }
     }
   }
@@ -151,6 +264,14 @@ const validateChecksumManifest = (sourceJson, checksumJson) => {
 
   if (checksumJson.sourceURL !== sourceJson.sourceURL) {
     errors.push("checksums.json sourceURL must match apps.json sourceURL.");
+  }
+
+  if (checksumJson.sourceURL !== canonicalSourceUrl) {
+    errors.push(`checksums.json sourceURL must be ${canonicalSourceUrl}.`);
+  }
+
+  if (containsLegacySourceUrl(checksumJson)) {
+    errors.push("checksums.json must not contain the old GitHub Pages source URL.");
   }
 
   if (!Array.isArray(checksumJson.files)) {
@@ -186,6 +307,121 @@ const validateChecksumManifest = (sourceJson, checksumJson) => {
     if (!sourceDownloadURLs.has(checksumEntry.downloadURL)) {
       errors.push(`${checksumPath}.downloadURL is absent from public/apps.json.`);
     }
+
+    if (!isCanonicalPublicUrl(checksumEntry.downloadURL)) {
+      errors.push(`${checksumPath}.downloadURL must use ${canonicalBaseUrl}.`);
+    }
+  }
+
+  return errors;
+};
+
+const matchingSourceVersions = (sourceJson) =>
+  (sourceJson.apps ?? []).flatMap((sourceApp) =>
+    (sourceApp.versions ?? []).map((sourceVersion) => ({
+      app: sourceApp,
+      version: sourceVersion,
+    })),
+  );
+
+const validateGeneratedMirrors = async (validationOptions) => {
+  const errors = [];
+
+  if (validationOptions.sourcePath === defaults.sourcePath) {
+    const rootSourcePath = resolve(repositoryRoot, validationOptions.sourcePath);
+    const publicSourcePath = resolve(repositoryRoot, "public/apps.json");
+
+    if (!await filesMatch(rootSourcePath, publicSourcePath)) {
+      errors.push("public/apps.json must match apps.json.");
+    }
+  }
+
+  if (validationOptions.checksumPath === defaults.checksumPath) {
+    const rootChecksumsPath = resolve(repositoryRoot, validationOptions.checksumPath);
+    const publicChecksumsPath = resolve(repositoryRoot, "public/checksums.json");
+
+    if (!await filesMatch(rootChecksumsPath, publicChecksumsPath)) {
+      errors.push("public/checksums.json must match checksums.json.");
+    }
+  }
+
+  return errors;
+};
+
+const validateLocalAssets = async (sourceJson) => {
+  const errors = [];
+  const assetUrls = (sourceJson.apps ?? []).flatMap((sourceApp) => [
+    sourceApp.iconURL,
+    ...(sourceApp.screenshotURLs ?? []),
+  ]).filter(Boolean);
+
+  for (const assetUrl of assetUrls) {
+    const assetPath = urlPathToRepositoryPath(assetUrl);
+
+    if (!assetPath) {
+      errors.push(`${assetUrl} does not map to a local asset path.`);
+      continue;
+    }
+
+    const assetLabel = relativePath(assetPath);
+    await assertFileExists(assetPath, assetLabel, errors);
+
+    const publicAssetPath = resolve(repositoryRoot, "public", assetLabel);
+    await assertFileExists(publicAssetPath, `public/${assetLabel}`, errors);
+  }
+
+  return errors;
+};
+
+const validateLocalIpas = async (sourceJson, checksumJson, validationOptions) => {
+  const errors = [];
+  const ipaDirectory = resolve(repositoryRoot, validationOptions.ipaDirectory);
+  const sourceVersionsByDownloadURL = new Map(
+    matchingSourceVersions(sourceJson).map(({ version }) => [version.downloadURL, version]),
+  );
+
+  for (const [fileIndex, checksumEntry] of (checksumJson.files ?? []).entries()) {
+    const checksumPath = `files[${fileIndex}]`;
+    const sourceVersion = sourceVersionsByDownloadURL.get(checksumEntry.downloadURL);
+    const ipaPath = resolve(ipaDirectory, basename(checksumEntry.fileName ?? ""));
+    const fileStats = await assertFileExists(ipaPath, `${checksumPath}.fileName local IPA`, errors);
+
+    if (!fileStats) {
+      continue;
+    }
+
+    let manifest;
+    try {
+      manifest = await ipaFileManifest(ipaPath, { baseUrl: canonicalBaseUrl });
+    } catch (metadataError) {
+      const message = metadataError instanceof Error ? metadataError.message : String(metadataError);
+      errors.push(`${checksumPath}.fileName could not be read as a valid IPA: ${message}`);
+      continue;
+    }
+
+    if (fileStats.size !== checksumEntry.size) {
+      errors.push(`${checksumPath}.size must match ${relativePath(ipaPath)} (${fileStats.size}).`);
+    }
+
+    if (manifest.sha256 !== checksumEntry.sha256) {
+      errors.push(`${checksumPath}.sha256 must match ${relativePath(ipaPath)}.`);
+    }
+
+    if (manifest.version !== checksumEntry.version) {
+      errors.push(`${checksumPath}.version must match the local IPA version ${manifest.version}.`);
+    }
+
+    if (manifest.buildVersion !== checksumEntry.buildVersion) {
+      errors.push(`${checksumPath}.buildVersion must match the local IPA build ${manifest.buildVersion}.`);
+    }
+
+    if (sourceVersion && sourceVersion.version !== manifest.version) {
+      errors.push(`${checksumPath}.version must match apps.json version ${sourceVersion.version}.`);
+    }
+
+    if (sourceVersion && sourceVersion.size !== fileStats.size) {
+      errors.push(`${checksumPath}.size must match apps.json size ${sourceVersion.size}.`);
+    }
   }
 
   return errors;
@@ -220,7 +456,7 @@ const legacyScanRoots = [
   "public/checksums.json",
 ];
 
-const relativeRepositoryPath = (entryPath) => relative(repositoryRoot, entryPath).split(sep).join("/");
+const relativeRepositoryPath = relativePath;
 
 const isTextFile = (entryPath, entryStats) =>
   entryStats.size <= 1024 * 1024
@@ -349,6 +585,9 @@ const runValidation = async () => {
     ...await validateAgainstSideStoreSchema(sourceJson),
     ...validateStrictSourceShape(sourceJson),
     ...validateChecksumManifest(sourceJson, checksumJson),
+    ...await validateGeneratedMirrors(validationOptions),
+    ...await validateLocalAssets(sourceJson),
+    ...await validateLocalIpas(sourceJson, checksumJson, validationOptions),
     ...(validationOptions.offlineFallback ? await validateOfflineFallback() : []),
     ...(validationOptions.legacyPurge ? await validateLegacyPurge() : []),
   ];
@@ -357,7 +596,7 @@ const runValidation = async () => {
     throw new SourceValidationError(errors);
   }
 
-  console.log("apps.json validates against the current SideStore schema.");
+  console.log("apps.json and checksums.json validate against source, asset, and IPA checks.");
 };
 
 try {

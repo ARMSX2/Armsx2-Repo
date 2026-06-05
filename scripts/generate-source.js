@@ -116,8 +116,8 @@ const runGenerator = async () => {
   await writeGeneratedTargets(targets, generated);
 
   if (defaultOutputPaths(generatorOptions)) {
-    for (const screenshotFile of generated.screenshotFiles) {
-      await mirrorPublicAsset(screenshotFile);
+    for (const assetFile of generated.assetFiles) {
+      await mirrorPublicAsset(assetFile);
     }
   }
 

@@ -64,7 +64,7 @@ const releaseMatchesManifest = (githubRelease, manifest) => {
     githubRelease.name,
   ].filter(Boolean).map(String);
 
-  const versionPattern = new RegExp(`(^|[^0-9])v?${escapedRegExp(manifest.version)}([^0-9]|$)`, "iu");
+  const versionPattern = new RegExp(`(^|[^0-9])v?${escapedRegExp(manifest.version)}(?=$|[^0-9.])`, "iu");
   return releaseFields.some((releaseField) => versionPattern.test(releaseField));
 };
 

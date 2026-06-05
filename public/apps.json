@@ -1,7 +1,7 @@
 {
   "name": "ARMSX2 iOS",
   "identifier": "com.j1coding.armsx2.ios",
-  "sourceURL": "https://j1coding.github.io/Armsx2-Repo/apps.json",
+  "sourceURL": "https://ios.armsx2.net/apps.json",
   "apps": [
     {
       "name": "ARMSX2 iOS",
@@ -9,20 +9,20 @@
       "developerName": "ARMSX2",
       "subtitle": "Modern PlayStation 2 emulation for iOS.",
       "localizedDescription": "ARMSX2 brings PlayStation 2 emulation to iOS devices. Based on the open-source PCSX2 project, this ARM64-focused iOS build helps you revisit and preserve your own legally obtained PS2 game library on modern mobile hardware.\n\nFeatures:\n- Customizable touchscreen controls and external controller support\n- Graphics settings, performance options, save states, and memory card support\n- Local-network support for compatible online titles\n\nImportant iOS requirements:\nA JIT-capable setup is required for playable performance. Compatibility varies by device, iOS version, game, and sideloading environment, including LiveContainer, SideStore, or Feather.\n\nDisclaimer:\nARMSX2 does not include games or BIOS files. Users must provide their own legally obtained BIOS and game backups, such as ISO files. ARMSX2 is not affiliated with Sony Interactive Entertainment or PlayStation.\n\nCredits:\nThe upstream ARMSX2 project was founded by jpolo1224 and MoonPower, with work from contributors including Zeruth and Dib1998.",
-      "iconURL": "https://j1coding.github.io/Armsx2-Repo/assets/icon.png",
+      "iconURL": "https://ios.armsx2.net/assets/icon.png",
       "screenshotURLs": [
-        "https://j1coding.github.io/Armsx2-Repo/assets/screenshots/01-library.png",
-        "https://j1coding.github.io/Armsx2-Repo/assets/screenshots/02-settings.png",
-        "https://j1coding.github.io/Armsx2-Repo/assets/screenshots/03-gameplay.png"
+        "https://ios.armsx2.net/assets/screenshots/01-library.png",
+        "https://ios.armsx2.net/assets/screenshots/02-settings.png",
+        "https://ios.armsx2.net/assets/screenshots/03-gameplay.png"
       ],
       "tintColor": "#2F6FAD",
       "versions": [
         {
-          "version": "1.3",
+          "version": "1.3.1",
           "date": "2026-06-05",
-          "localizedDescription": "Updated to ARMSX2 iOS 1.3.\n\nAdded the Burnout graphics skyfix path present in 1.2.4 to Burnout 3: Takedown.\n\nImproved EE performance behavior by removing old iPSX2 diagnostic overhead from hot emulation paths. Overall emulator performance is now improved, and device heat may be improved as well.\n\nVarious games have received corrected graphics thanks to @Dib1998 VU fix in 1.2.4\n\nFixed custom PNG texture replacements appearing too dark on iOS thanks to @yuliangtao\n\nUpdated app and OSD version display to ARMSX2 iOS 1.3.",
-          "downloadURL": "https://j1coding.github.io/Armsx2-Repo/ipas/ARMSX2-iOS-1.3.ipa",
-          "size": 14107294,
+          "localizedDescription": "Updated to ARMSX2 iOS 1.3.1.\n\nFixed Black’s black sky on iOS Metal.\n\nUpdated app metadata, OSD, and build marker to 1.3.1.\n\nMTVU and deinterlacing are now available in Per-Game Settings.\n\nThe Virtual Pad can now automatically hide when an external controller is connected.\n\nSilent Hill 3 graphics issues are also fixed by disabling gamedb core fixes.",
+          "downloadURL": "https://ios.armsx2.net/ipas/ARMSX2-iOS-1.3.1.ipa",
+          "size": 14116766,
           "minOSVersion": "18.0"
         }
       ],
