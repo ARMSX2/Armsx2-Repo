@@ -26,18 +26,18 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      ARMSX2_PUBLIC_BASE_URL: https://j1coding.github.io/Armsx2-Repo
+      ARMSX2_PUBLIC_BASE_URL: https://ios.armsx2.net
       INCLUDE_PRERELEASES: ${{ inputs.include_prereleases || 'false' }}
 
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           token: ${{ secrets.SOURCE_UPDATE_TOKEN || secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: "22"
           cache: npm
