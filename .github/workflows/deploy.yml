@@ -26,7 +26,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build project
+      - name: Generate source
         run: npm run generate:source
 
       - name: Validate generated source
@@ -34,13 +34,16 @@ jobs:
           npm run check:source
           npm run validate:source
 
+      - name: Build site (Vite)
+        run: npm run build
+
       - name: Prepare deployment files
         if: github.event_name == 'push'
         run: |
           rm -rf .deploy
           mkdir -p .deploy
-          cp index.html apps.json checksums.json .nojekyll .deploy/
-          cp -R assets ipas public .deploy/
+          cp -R dist/. .deploy/
+          cp -R ipas .deploy/
 
       - name: Deploy to server
         if: github.event_name == 'push'
