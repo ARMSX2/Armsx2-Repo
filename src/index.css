@@ -21,6 +21,8 @@
   --accent: #8c75cc;
   --accent-2: #3e4d84;
   --accent-hover: #7c69b7;
+  --grad-purple: linear-gradient(135deg, #102a7a 0%, #2a1a66 100%);
+  --grad-purple-hover: linear-gradient(135deg, #163496 0%, #382285 100%);
   --text: #f8fafc;
   --muted: #d4d4d8;
   --soft: #a1a1aa;
@@ -342,7 +344,7 @@ h3 {
   overflow: hidden;
   min-height: 58px;
   border-color: var(--border-strong);
-  background: var(--accent);
+  background: var(--grad-purple);
   color: #ffffff;
   font-size: 1.04rem;
   box-shadow:
@@ -369,7 +371,7 @@ h3 {
 }
 
 .primary-action:hover {
-  background: var(--accent-hover);
+  background: var(--grad-purple-hover);
   box-shadow:
     0 0 28px rgba(141, 118, 204, 0.4),
     inset 0 0 8px rgba(62, 77, 132, 0.18);
@@ -549,7 +551,7 @@ h3 {
   width: 6px;
   height: 6px;
   border-radius: 99px;
-  background: var(--accent);
+  background: var(--grad-purple);
   box-shadow: 0 0 8px rgba(141, 118, 204, 0.6);
   content: "";
 }
@@ -873,14 +875,14 @@ h3 {
 }
 
 .hero-btn--purple {
-  background: var(--accent);
+  background: var(--grad-purple);
   box-shadow:
     0 0 16px rgba(141, 118, 204, 0.25),
     inset 0 0 8px rgba(62, 77, 132, 0.15);
 }
 
 .hero-btn--purple:hover {
-  background: var(--accent-hover);
+  background: var(--grad-purple-hover);
   box-shadow:
     0 0 28px rgba(141, 118, 204, 0.4),
     inset 0 0 8px rgba(62, 77, 132, 0.18);
