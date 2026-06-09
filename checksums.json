@@ -1,17 +1,17 @@
 {
   "sourceIdentifier": "com.j1coding.armsx2.ios",
   "sourceURL": "https://ios.armsx2.net/apps.json",
-  "generatedAt": "2026-06-06T19:50:30.000Z",
+  "generatedAt": "2026-06-08T19:59:40.000Z",
   "files": [
     {
-      "fileName": "ARMSX2-iOS-1.3.2.ipa",
+      "fileName": "ARMSX2-iOS-2.1.ipa",
       "bundleIdentifier": "com.armsx2.ios",
-      "version": "1.3.2",
-      "buildVersion": "137",
-      "date": "2026-06-06",
-      "downloadURL": "https://ios.armsx2.net/ipas/ARMSX2-iOS-1.3.2.ipa",
-      "size": 14232488,
-      "sha256": "20f331cbf818ed887f6fd42aa84d21be28300d17a6eba3af6873545cb21f6730"
+      "version": "2.1",
+      "buildVersion": "210",
+      "date": "2026-06-08",
+      "downloadURL": "https://ios.armsx2.net/ipas/ARMSX2-iOS-2.1.ipa",
+      "size": 13670044,
+      "sha256": "87f9d3a255f4cd5e6c356529f80af7f8b8f34141144a82cd719cee2c16997b81"
     }
   ]
 }
