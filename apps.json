@@ -18,11 +18,11 @@
       "tintColor": "#2F6FAD",
       "versions": [
         {
-          "version": "2.1",
-          "date": "2026-06-08",
-          "localizedDescription": "Updated to ARMSX2 iOS 2.1.\n\nUpdated ARMSX2 iOS metadata and OSD branding to ARMSX2 iOS 2.1.\n\nKept the current fast iOS ARM64 JIT path and integrated the recent EE-side optimization work: fastmem, MTVU, block linking, const propagation, and GPR cache work.\n\nRestored native-resolution iOS Metal GameDB hardware fixes after the PCSX2 2.7 settings reload path, so safe fixes like HPO/native scaling/align sprite survive properly.\n\nBrought over the mac/PCSX2 graphics fixes used to improve GTA, God of War, and related hardware-renderer behavior:\nARM64: microVU — fix scalar FMAC zeroing ACC's other lanes\nGS: Fix dirty reg handling\nGS: Fix temp rect handling",
-          "downloadURL": "https://ios.armsx2.net/ipas/ARMSX2-iOS-2.1.ipa",
-          "size": 13670044,
+          "version": "2.2",
+          "date": "2026-06-11",
+          "localizedDescription": "Updated to ARMSX2 iOS 2.2.\n\nUpdated OSD/FPS branding to ARMSX2 iOS 2.2.\n\nFixed controller rumble.\n\nImproved the ARM64 EE recompiler: GPR cache expansion, const folding, cached loads/stores, branch-likely support, wait-loop handling, full-clamp FPU path, and unaligned load/store native paths. This should improve performance quite a bit. Thank you to @zeruth for assisting.\n\nARM64: Port x86 iFPUd full clamp mode (eeClampMode=3) for EE FPU, fixes NFS Carbon hang courtesy of @isztldav",
+          "downloadURL": "https://ios.armsx2.net/ipas/ARMSX2-iOS-2.2.ipa",
+          "size": 13712651,
           "minOSVersion": "18.0"
         }
       ],
