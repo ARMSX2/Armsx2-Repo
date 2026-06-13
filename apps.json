@@ -18,11 +18,11 @@
       "tintColor": "#2F6FAD",
       "versions": [
         {
-          "version": "2.2",
-          "date": "2026-06-11",
-          "localizedDescription": "Updated to ARMSX2 iOS 2.2.\n\nUpdated OSD/FPS branding to ARMSX2 iOS 2.2.\n\nFixed controller rumble.\n\nImproved the ARM64 EE recompiler: GPR cache expansion, const folding, cached loads/stores, branch-likely support, wait-loop handling, full-clamp FPU path, and unaligned load/store native paths. This should improve performance quite a bit. Thank you to @zeruth for assisting.\n\nARM64: Port x86 iFPUd full clamp mode (eeClampMode=3) for EE FPU, fixes NFS Carbon hang courtesy of @isztldav",
-          "downloadURL": "https://ios.armsx2.net/ipas/ARMSX2-iOS-2.2.ipa",
-          "size": 13712651,
+          "version": "2.2.1",
+          "date": "2026-06-13",
+          "localizedDescription": "Updated to ARMSX2 iOS 2.2.1.\n\nMidnight Club 3 Graphical Smoke issue in the garage fixed.\n\nFurther ARM64 EE Performance improvements.\n\nPotential fix for Silent Hill 2 graphical issues at the intro, (the flashlight bug still remains).\n\nBrought over from @isztldav work on the Mac Side:\n\nPorted ARM64 microVU fix for FTOI NaN-pattern handling.",
+          "downloadURL": "https://ios.armsx2.net/ipas/ARMSX2-iOS-2.2.1.ipa",
+          "size": 18935664,
           "minOSVersion": "18.0"
         }
       ],
