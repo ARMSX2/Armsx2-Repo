@@ -18,12 +18,12 @@
       "tintColor": "#2F6FAD",
       "versions": [
         {
-          "version": "2.2.1",
-          "date": "2026-06-13",
-          "localizedDescription": "Updated to ARMSX2 iOS 2.2.1.\n\nMidnight Club 3 Graphical Smoke issue in the garage fixed.\n\nFurther ARM64 EE Performance improvements.\n\nPotential fix for Silent Hill 2 graphical issues at the intro, (the flashlight bug still remains).\n\nBrought over from @isztldav work on the Mac Side:\n\nPorted ARM64 microVU fix for FTOI NaN-pattern handling.",
-          "downloadURL": "https://ios.armsx2.net/ipas/ARMSX2-iOS-2.2.1.ipa",
-          "size": 18935664,
-          "minOSVersion": "18.0"
+          "version": "2.2.2",
+          "date": "2026-06-14",
+          "localizedDescription": "Updated to ARMSX2 iOS 2.2.2.\n\nFixed Sonic Unleashed iOS Metal rendering by allowing the game’s required OI_SonicUnleashed GameDB beforeDraw callback through the iOS Metal callback safety filter.\n\nBrought over @isztldav ARM64 EE timing fixes: flushes cpuRegs.cycle before inline COP2/VU0 macro ops so VU timing is current,\napplies the COP0 Config.DIE EE cycle multiplier like x86 PCSX2. Crash Twinsanity is now fixed thanks to these changes!\n\nAdded Apple Airplay support, ARMSX2 iOS can now be played on a TV!\n\nHardcore RetroAchievements is now in the review stage for iOS! I will update when the RA team has approved us, it will take some time. For the time being the hardcore toggle has been hidden. Softcore RetroAchievements works as intended.\n\nFrom @j1coding PR:",
+          "downloadURL": "https://ios.armsx2.net/ipas/ARMSX2-iOS-2.2.2.ipa",
+          "size": 19085753,
+          "minOSVersion": "17.0"
         }
       ],
       "permissions": [
