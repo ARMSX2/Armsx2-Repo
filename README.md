@@ -16,3 +16,4 @@ Custom source repository for the ARMSX2 iOS port. Add it to your sideloading app
 ```text
 https://ios.armsx2.net/apps.json
 ```
+ 
