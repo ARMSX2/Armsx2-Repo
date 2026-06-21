@@ -18,11 +18,11 @@
       "tintColor": "#2F6FAD",
       "versions": [
         {
-          "version": "2.2.2",
-          "date": "2026-06-14",
-          "localizedDescription": "Updated to ARMSX2 iOS 2.2.2.\n\nFixed Sonic Unleashed iOS Metal rendering by allowing the game’s required OI_SonicUnleashed GameDB beforeDraw callback through the iOS Metal callback safety filter.\n\nBrought over @isztldav ARM64 EE timing fixes: flushes cpuRegs.cycle before inline COP2/VU0 macro ops so VU timing is current,\napplies the COP0 Config.DIE EE cycle multiplier like x86 PCSX2. Crash Twinsanity is now fixed thanks to these changes!\n\nAdded Apple Airplay support, ARMSX2 iOS can now be played on a TV!\n\nHardcore RetroAchievements is now in the review stage for iOS! I will update when the RA team has approved us, it will take some time. For the time being the hardcore toggle has been hidden. Softcore RetroAchievements works as intended.\n\nFrom @j1coding PR:",
-          "downloadURL": "https://ios.armsx2.net/ipas/ARMSX2-iOS-2.2.2.ipa",
-          "size": 19085753,
+          "version": "2.3.0",
+          "date": "2026-06-20",
+          "localizedDescription": "Updated to ARMSX2 iOS 2.3.0.\n\nAdded RetroAchievements Hardcore support on iOS, including Hardcore status states, settings UI, login recovery/status handling, and enforcement around save-state loading and restricted features. Thank you to @LiquifiedSnow and the rest of the RA team for working with us!\n\nBrought over recompiler changes I did on Android to fix Ratchet and Clank series of games (should fix other games as well!)\n\nAdded RetroAchievements in-game support polish: achievement toast notifications with badges, current-game achievements panel, notification/leaderboard/overlay toggles, and better overlay defaults for iOS screens.\n\nBrought over major Mac/core ARM64 improvements into iOS from @isztldav, especially EE/VU recompiler work around COP2/VU0 sync, native VU macro paths, load/store/branch handling, cycle accounting, and VU clamp/IR fixes.\n\nFrom @J1coding",
+          "downloadURL": "https://ios.armsx2.net/ipas/ARMSX2-iOS-2.3.0.ipa",
+          "size": 19421078,
           "minOSVersion": "17.0"
         }
       ],
