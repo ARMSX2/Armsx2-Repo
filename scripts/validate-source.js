@@ -513,9 +513,6 @@ const repositoryTextFiles = async () => {
 
 const legacyNeedles = [
   "AltStore",
-  "Android",
-  ".apk",
-  "APK",
   "PC build",
   "Cydia",
   "Sileo",
