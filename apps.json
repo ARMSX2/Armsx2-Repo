@@ -18,11 +18,11 @@
       "tintColor": "#2F6FAD",
       "versions": [
         {
-          "version": "2.3.0",
-          "date": "2026-06-20",
-          "localizedDescription": "Updated to ARMSX2 iOS 2.3.0.\n\nAdded RetroAchievements Hardcore support on iOS, including Hardcore status states, settings UI, login recovery/status handling, and enforcement around save-state loading and restricted features. Thank you to @LiquifiedSnow and the rest of the RA team for working with us!\n\nBrought over recompiler changes I did on Android to fix Ratchet and Clank series of games (should fix other games as well!)\n\nAdded RetroAchievements in-game support polish: achievement toast notifications with badges, current-game achievements panel, notification/leaderboard/overlay toggles, and better overlay defaults for iOS screens.\n\nBrought over major Mac/core ARM64 improvements into iOS from @isztldav, especially EE/VU recompiler work around COP2/VU0 sync, native VU macro paths, load/store/branch handling, cycle accounting, and VU clamp/IR fixes.\n\nFrom @J1coding",
-          "downloadURL": "https://ios.armsx2.net/ipas/ARMSX2-iOS-2.3.0.ipa",
-          "size": 19421078,
+          "version": "2.3.1",
+          "date": "2026-06-24",
+          "localizedDescription": "Updated to ARMSX2 iOS 2.3.1.\n\nFrom @J1coding\n**Cheats & Patches manager:** Each game now has its own manager for .pnach cheats and patches, available from the game long-press menu or the in-game quick menu. You can view named entries, enable/disable them per game, remove individual entries, or delete full patch/cheat files without manually editing text files.\n\n**Patch and cheat downloads:** The manager can download matching PCSX2 patches or community cheats using the game’s serial/CRC, then merge them into that game’s files. Downloads start disabled so you choose what to activate, and trusted custom source URLs can be configured.\n\n**Safer .pnach handling:** Imports now merge instead of blindly replacing content. Matching named blocks are updated, unrelated entries are preserved, backups are made before managed writes, and URL comments like http:// / https:// are no longer broken by // comment parsing.\n\n**Compatibility Lab retired:** The old Compatibility Lab has been removed from the iOS menus and help. This is separate from the new Cheats & Patches manager; it was not replaced by it.\n\n**Virtual pad upgrades:** The D-pad can now support one-finger diagonals and smoother rolling/quarter-circle inputs. Face-butto",
+          "downloadURL": "https://ios.armsx2.net/ipas/ARMSX2-iOS-2.3.1.ipa",
+          "size": 19439537,
           "minOSVersion": "17.0"
         }
       ],
