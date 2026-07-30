@@ -18,11 +18,11 @@
       "tintColor": "#2F6FAD",
       "versions": [
         {
-          "version": "2.4.0",
-          "date": "2026-07-03",
-          "localizedDescription": "Updated to ARMSX2 iOS 2.4.0.\n\nARMSX2 iOS 2.4.0\n\nARMSX2 iOS 2.4.0 is a big update focused on making the app feel better while you are actually playing.\n\nThe pause menu has been rebuilt, Per-Game Settings has been redesigned, more options can now be tuned per game, and a lot of rough edges around the library, audio, RetroAchievements, memory cards, icons, and compatibility have been cleaned up.\n\nThis update also brings over a large amount of platform and core work that helps improve performance, stability, and game compatibility across the app.\n\nA big thank you to **@isztldav** and **@jpolo1224**  for the amount of platform work that helped make many of these features possible. A lot of this update builds on work that started across macOS and Android before being adapted and polished for iOS.",
-          "downloadURL": "https://ios.armsx2.net/ipas/ARMSX2-iOS-2.4.0.ipa",
-          "size": 22448405,
+          "version": "2.5.0",
+          "date": "2026-07-30",
+          "localizedDescription": "Updated to ARMSX2 iOS 2.5.0.\n\nARMSX2 2.5.0 is a major update to the emulator core and the iOS frontend.\n\nThe biggest core change is a new shared ARM64 recompiler, replacing the older iOS-specific EE, IOP and VU recompilers. It brings iOS in line with the ARM handheld builds, reduces CPU overhead in several parts of emulation, and restores features the previous iOS backend did not support correctly.\n\nThe release also moves iOS onto the shared game database used by the other mobile ARM builds. That brings a large set of newer per-game fixes and tuning to iOS. Outside the core, 2.5.0 adds Dynamic Controls, animated backgrounds, settings presets, improved frame pacing, proper 120 Hz support, an in-app controller-skin browser, RetroAchievements fixes, OSD improvements, and a long list of graphics and stability fixes.\n\nAlmost none of this is my own work. The core belongs to @bmdhacks, the new iOS interface and control features to @Henyckma, and the rest to @pstef, @jpolo1224, @XDarkFallenX and Mart. Thanks to all of them, and to everyone who tested development builds and reported problems.\n\nHighlights\n- New shared ARM64 recompiler for the EE, IOP and vector units, from @bmdhacks",
+          "downloadURL": "https://ios.armsx2.net/ipas/ARMSX2-iOS-2.5.0.ipa",
+          "size": 25630097,
           "minOSVersion": "17.0"
         }
       ],
@@ -30,6 +30,10 @@
         {
           "type": "network",
           "usageDescription": "ARMSX2 uses local network access for PS2 online play through DEV9 sockets."
+        },
+        {
+          "type": "motion",
+          "usageDescription": "ARMSX2 uses device motion to control the emulated right analog stick when Gyroscope Camera is enabled."
         }
       ]
     }
