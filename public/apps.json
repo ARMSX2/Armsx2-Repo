@@ -18,11 +18,11 @@
       "tintColor": "#2F6FAD",
       "versions": [
         {
-          "version": "2.5.0",
-          "date": "2026-07-30",
-          "localizedDescription": "Updated to ARMSX2 iOS 2.5.0.\n\nARMSX2 2.5.0 is a major update to the emulator core and the iOS frontend.\n\nThe biggest core change is a new shared ARM64 recompiler, replacing the older iOS-specific EE, IOP and VU recompilers. It brings iOS in line with the ARM handheld builds, reduces CPU overhead in several parts of emulation, and restores features the previous iOS backend did not support correctly.\n\nThe release also moves iOS onto the shared game database used by the other mobile ARM builds. That brings a large set of newer per-game fixes and tuning to iOS. Outside the core, 2.5.0 adds Dynamic Controls, animated backgrounds, settings presets, improved frame pacing, proper 120 Hz support, an in-app controller-skin browser, RetroAchievements fixes, OSD improvements, and a long list of graphics and stability fixes.\n\nAlmost none of this is my own work. The core belongs to @bmdhacks, the new iOS interface and control features to @Henyckma, and the rest to @pstef, @jpolo1224, @XDarkFallenX and Mart. Thanks to all of them, and to everyone who tested development builds and reported problems.\n\nHighlights\n- New shared ARM64 recompiler for the EE, IOP and vector units, from @bmdhacks",
-          "downloadURL": "https://ios.armsx2.net/ipas/ARMSX2-iOS-2.5.0.ipa",
-          "size": 25630097,
+          "version": "2.5.1",
+          "date": "2026-07-31",
+          "localizedDescription": "Updated to ARMSX2 iOS 2.5.1.\n\n2.5.1 is mostly a fixes release.\n\nThe two biggest issues were A12 devices crashing on launch and rumble being completely broken since 2.4.1. Both are fixed, along with a proper no-JIT fallback, several performance improvements, and a collection of Virtual Pad and interface fixes.\n\nHighlights\n- Fixed launch crashes on A12 devices\n- Controller and phone rumble work again\n- Added improved phone rumble with separate motor handling and a strength setting — @Henyckma\n- Added a proper no-JIT fallback and improved interpreter performance — @Henyckma\n- Fixed a Devil May Cry crash during FMVs",
+          "downloadURL": "https://ios.armsx2.net/ipas/ARMSX2-iOS-2.5.1.ipa",
+          "size": 26327755,
           "minOSVersion": "17.0"
         }
       ],
