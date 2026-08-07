@@ -18,11 +18,11 @@
       "tintColor": "#2F6FAD",
       "versions": [
         {
-          "version": "2.5.1",
-          "date": "2026-07-31",
-          "localizedDescription": "Updated to ARMSX2 iOS 2.5.1.\n\n2.5.1 is mostly a fixes release.\n\nThe two biggest issues were A12 devices crashing on launch and rumble being completely broken since 2.4.1. Both are fixed, along with a proper no-JIT fallback, several performance improvements, and a collection of Virtual Pad and interface fixes.\n\nHighlights\n- Fixed launch crashes on A12 devices\n- Controller and phone rumble work again\n- Added improved phone rumble with separate motor handling and a strength setting — @Henyckma\n- Added a proper no-JIT fallback and improved interpreter performance — @Henyckma\n- Fixed a Devil May Cry crash during FMVs",
-          "downloadURL": "https://ios.armsx2.net/ipas/ARMSX2-iOS-2.5.1.ipa",
-          "size": 26327755,
+          "version": "2.5.2",
+          "date": "2026-08-06",
+          "localizedDescription": "Updated to ARMSX2 iOS 2.5.2.\n\n**Frame rate cap**\n\n@Henyckma added an FPS cap that limits presentation only. The game and the audio keep running at full speed, so it costs nothing in emulation and gives back battery and heat instead. Targets are 15, 23.976, 29.94, 30, 45, 59.97, 60, 90 and 120, set globally or per game. The gain is biggest at 2x and 3x internal resolution, where the passes it skips cover the most pixels. Selecting 30 FPS used to halve emulation and audio speed, which is fixed, and FPS profiles from earlier builds carry over without losing the cadence you picked.\n\n**Crashes and freezes**\n\nFixed a crash in games like Namco Museum 50th Anniversary, which turned out to be an out of bounds write in the virtual memory page protection table. Fixed a freeze in readback heavy scenes with Hardware Download Mode set to Unsynchronized. Rogue Galaxy no longer stalls the graphics thread around 7.5 ms every frame on a depth probe readback, about a fifth of the frame on an M2. The last two are bmdhacks. Saving per game settings could also leave the game frozen a second or two later, which is covered below.\n\n**Sprite hacks**",
+          "downloadURL": "https://ios.armsx2.net/ipas/ARMSX2-iOS-2.5.2.ipa",
+          "size": 26425138,
           "minOSVersion": "17.0"
         }
       ],
