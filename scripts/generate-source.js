@@ -19,6 +19,7 @@ const defaults = {
   check: false,
   requireIpa: false,
   offline: process.env.ARMSX2_OFFLINE === "1",
+  refreshChangelogs: false,
 };
 
 const parseArguments = (cliArguments) => parseOptions(
@@ -35,6 +36,7 @@ const parseArguments = (cliArguments) => parseOptions(
     "--check": setOptionFlag("check"),
     "--require-ipa": setOptionFlag("requireIpa"),
     "--offline": setOptionFlag("offline"),
+    "--refresh-changelogs": setOptionFlag("refreshChangelogs"),
   },
   (message) => new SourceGenerationError(message),
 );

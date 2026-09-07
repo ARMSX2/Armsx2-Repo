@@ -9,6 +9,7 @@ import {
   mkdtemp,
   readFile,
   rm,
+  stat,
   writeFile,
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -20,6 +21,7 @@ import { promisify } from "node:util";
 import { parseOptions, setOptionFlag, setOptionValue } from "./cli.js";
 import { defaultBaseUrl, repositoryRoot } from "./constants.js";
 import { ipaFileManifest } from "./ipa-metadata.js";
+import { findIpaFiles } from "./source-builder.js";
 
 const execFileAsync = promisify(execFile);
 const generatorPath = resolve(repositoryRoot, "scripts/generate-source.js");
@@ -223,11 +225,24 @@ const downloadAssetToFile = async (releaseAsset, outputPath) => {
   return hash.digest("hex");
 };
 
+const publishedFileExists = async (syncOptions, fileName) => {
+  try {
+    await stat(join(resolve(repositoryRoot, syncOptions.outputDirectory), basename(fileName)));
+    return true;
+  } catch {
+    return false;
+  }
+};
+
+// A matching hash only means "already published" when the file it names is
+// still on disk. Otherwise the sync would short-circuit and leave apps.json
+// pointing at an IPA nobody can build.
 const checksumExists = async (syncOptions, ipaSha256) => {
   const checksumPath = resolve(repositoryRoot, syncOptions.checksumsPath);
   const checksumPayload = await jsonDocument(checksumPath, { files: [] });
+  const matchingEntry = (checksumPayload.files ?? []).find((fileEntry) => fileEntry.sha256 === ipaSha256);
 
-  return (checksumPayload.files ?? []).some((fileEntry) => fileEntry.sha256 === ipaSha256);
+  return Boolean(matchingEntry) && await publishedFileExists(syncOptions, matchingEntry.fileName);
 };
 
 const safeAssetName = (assetName) =>
@@ -313,13 +328,21 @@ const validateCandidate = async (temporaryDirectory, candidateIpaDirectory, sync
   ]);
 };
 
+// Copy first, prune second. Removing the directory up front left ipas/ empty
+// whenever the copy that followed failed, and the next generate would then
+// publish a source with no versions at all.
 const replacePublishedIpas = async (candidateIpaPath, syncOptions) => {
   const outputDirectory = resolve(repositoryRoot, syncOptions.outputDirectory);
   const outputIpaPath = join(outputDirectory, basename(candidateIpaPath));
 
-  await rm(outputDirectory, { recursive: true, force: true });
   await mkdir(outputDirectory, { recursive: true });
   await copyFile(candidateIpaPath, outputIpaPath);
+
+  for (const staleIpaPath of await findIpaFiles(outputDirectory)) {
+    if (staleIpaPath !== outputIpaPath) {
+      await rm(staleIpaPath, { force: true });
+    }
+  }
 
   return outputIpaPath;
 };

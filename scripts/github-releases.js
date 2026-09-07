@@ -71,26 +71,63 @@ const releaseMatchesManifest = (githubRelease, manifest) => {
 const matchingGithubRelease = (githubReleases, manifest) =>
   githubReleases.find((githubRelease) => releaseMatchesManifest(githubRelease, manifest)) ?? null;
 
-const markdownToStoreText = (markdownText) => {
+const storeTextBudget = 2000;
+
+const looksLikeHeading = (paragraph) =>
+  !paragraph.includes("\n") && paragraph.length < 60 && !/[.!?:]$/u.test(paragraph);
+
+// Whole paragraphs only, so a cut never lands mid-sentence, and never on a
+// heading whose section did not fit.
+const withinBudget = (paragraphs) => {
+  const kept = [];
+  let usedCharacters = 0;
+
+  for (const paragraph of paragraphs) {
+    const paragraphCost = paragraph.length + 2;
+
+    if (usedCharacters + paragraphCost > storeTextBudget) {
+      while (kept.length > 0 && looksLikeHeading(kept.at(-1))) {
+        kept.pop();
+      }
+
+      return { kept, truncated: true };
+    }
+
+    kept.push(paragraph);
+    usedCharacters += paragraphCost;
+  }
+
+  return { kept, truncated: false };
+};
+
+export const markdownToStoreText = (markdownText) => {
   const cleanedText = String(markdownText)
     .replace(/\r\n?/gu, "\n")
     .replace(/```[\s\S]*?```/gu, "")
     .replace(/!\[[^\]]*\]\([^)]*\)/gu, "")
     .replace(/\[([^\]]+)\]\([^)]*\)/gu, "$1")
     .replace(/`([^`]+)`/gu, "$1")
+    .replace(/(\*\*|__)(?=\S)([\s\S]*?\S)\1/gu, "$2")
     .replace(/^#{1,6}\s*/gmu, "")
-    .replace(/^\s*[-*+]\s+/gmu, "- ")
+    .replace(/^[ \t]*[-*+][ \t]+/gmu, "- ")
     .replace(/\n{3,}/gu, "\n\n")
     .trim();
 
-  return cleanedText
-    .split("\n")
-    .map((line) => line.trimEnd())
-    .filter((line) => !/^full changelog:?/iu.test(line))
-    .slice(0, 10)
-    .join("\n")
-    .slice(0, 1200)
-    .trim();
+  const candidateParagraphs = cleanedText
+    .split("\n\n")
+    .map((paragraph) => paragraph.split("\n").map((line) => line.trimEnd())
+      .filter((line) => !/^full changelog:?/iu.test(line))
+      .join("\n")
+      .trim())
+    .filter(Boolean);
+
+  const { kept, truncated } = withinBudget(candidateParagraphs);
+
+  if (kept.length === 0) {
+    return "";
+  }
+
+  return truncated ? `${kept.join("\n\n")}\n\n\u2026` : kept.join("\n\n");
 };
 
 const fallbackChangelog = (manifest, metadataPayload) => {
@@ -121,7 +158,13 @@ export const existingVersionDescriptions = async (repositoryRoot, sourcePath) =>
   return versionDescriptions;
 };
 
-export const storeChangelog = (manifest, metadataPayload, githubReleases, existingDescriptions) => {
+export const storeChangelog = (manifest, metadataPayload, githubReleases, existingDescriptions, generatorOptions = {}) => {
+  const publishedDescription = existingDescriptions.get(`${manifest.version}|${manifest.downloadURL}`);
+
+  if (publishedDescription && !generatorOptions.refreshChangelogs) {
+    return publishedDescription;
+  }
+
   const githubRelease = matchingGithubRelease(githubReleases, manifest);
   const releaseBody = markdownToStoreText(githubRelease?.body ?? "");
 
@@ -129,7 +172,7 @@ export const storeChangelog = (manifest, metadataPayload, githubReleases, existi
     return `Updated to ARMSX2 iOS ${manifest.version}.\n\n${releaseBody}`;
   }
 
-  return existingDescriptions.get(`${manifest.version}|${manifest.downloadURL}`)
+  return publishedDescription
     ?? existingDescriptions.get(manifest.version)
     ?? fallbackChangelog(manifest, metadataPayload);
 };

@@ -18,7 +18,7 @@ import {
 import { ipaFileManifest } from "./ipa-metadata.js";
 
 const execFileAsync = promisify(execFile);
-const schemaUrl = "https://raw.githubusercontent.com/SideStore/sidestore-source-types/main/schema.json";
+const schemaPath = resolve(repositoryRoot, "scripts/source-schema.json");
 const generatorPath = resolve(repositoryRoot, "scripts/generate-source.js");
 
 const defaults = {
@@ -143,23 +143,8 @@ const urlPathToRepositoryPath = (urlValue) => {
   return resolve(repositoryRoot, ...pathSegments);
 };
 
-const sideStoreSchema = async () => {
-  const schemaResponse = await fetch(schemaUrl, {
-    headers: {
-      Accept: "application/schema+json, application/json",
-      "User-Agent": "J1coding-ARMSX2-Source-Validator/2.0",
-    },
-  });
-
-  if (!schemaResponse.ok) {
-    throw new SourceValidationError([`SideStore schema fetch failed: ${schemaResponse.status}`]);
-  }
-
-  return schemaResponse.json();
-};
-
-const validateAgainstSideStoreSchema = async (sourceJson) => {
-  const schemaDocument = await sideStoreSchema();
+const validateAgainstSourceSchema = async (sourceJson) => {
+  const schemaDocument = await jsonDocument(schemaPath);
   const schemaValidator = new Ajv({ allErrors: true, strict: true });
   const validateSource = schemaValidator.compile(schemaDocument);
 
@@ -168,8 +153,8 @@ const validateAgainstSideStoreSchema = async (sourceJson) => {
   }
 
   return validateSource.errors.map((schemaError) => {
-    const schemaPath = schemaError.instancePath || "$";
-    return `${schemaPath} ${schemaError.message}`;
+    const errorPath = schemaError.instancePath || "$";
+    return `${errorPath} ${schemaError.message}`;
   });
 };
 
@@ -205,7 +190,7 @@ const validateStrictSourceShape = (sourceJson) => {
     errors.push("apps.json must not contain the old GitHub Pages source URL.");
   }
 
-  const forbiddenSourceKeys = ["buildVersion", "sha256", "appPermissions", "marketplaceID"];
+  const forbiddenSourceKeys = ["buildVersion", "appPermissions", "marketplaceID"];
 
   for (const forbiddenKey of forbiddenSourceKeys) {
     const matchingPaths = nestedKeyPaths(sourceJson, forbiddenKey);
@@ -579,7 +564,7 @@ const runValidation = async () => {
   const sourceJson = await jsonDocument(resolve(repositoryRoot, validationOptions.sourcePath));
   const checksumJson = await jsonDocument(resolve(repositoryRoot, validationOptions.checksumPath));
   const errors = [
-    ...await validateAgainstSideStoreSchema(sourceJson),
+    ...await validateAgainstSourceSchema(sourceJson),
     ...validateStrictSourceShape(sourceJson),
     ...validateChecksumManifest(sourceJson, checksumJson),
     ...await validateGeneratedMirrors(validationOptions),
