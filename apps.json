@@ -60,20 +60,61 @@
           }
         ]
       }
+    },
+    {
+      "name": "ARMSX2 Nightly",
+      "bundleIdentifier": "com.armsx2.ios.nightly",
+      "developerName": "ARMSX2",
+      "subtitle": "The newest features, built most days. Installs beside the stable app.",
+      "localizedDescription": "The newest ARMSX2 features, built from the latest code most days. Less tested than a release, so expect the odd bug.\n\nMost builds run fine. Now and then one carries a bug a release would have caught, or does not start. If you would rather play than test, install ARMSX2 iOS.\n\nNightly installs as its own app, next to the stable release rather than over it. Save states, memory cards and settings stay separate, so trying a nightly cannot disturb a working stable install. Nothing is shared between them either, so anything you save in one stays there.\n\nRequirements\nThe same as the stable release: iPhone or iPad on iOS 17 or later, a JIT-capable setup, and your own PS2 BIOS and game files.\n\nLinks\nWebsite: https://armsx2.net\nCompatibility: https://armsx2.net/compatibility\nDocs and FAQ: https://armsx2.net/docs\nDiscord: https://discord.gg/S7VxwfS8w9\nSource code: https://github.com/ARMSX2/ARMSX2\n\nSupport development\nPatreon: https://www.patreon.com/cw/ARMSX2\nKo-fi: https://ko-fi.com/armsx2\n\nCredits\nARMSX2 is open source under GPL-3.0 and builds on PCSX2. Started by MoonPower with support from jpolo1224, forked from PCSX2_ARM64 by Pontos.\n\nApp icon by fffathur, logo by Vivimagic. The icon artwork is MIT licensed: https://github.com/ARMSX2/Save-Tower\n\nARMSX2 does not include games or BIOS files. Donations are voluntary and the project seeks no commercial return. It is not officially associated with PCSX2 or with any other fork of it, and not affiliated with Sony Interactive Entertainment or PlayStation.",
+      "iconURL": "https://ios.armsx2.net/assets/icon-nightly.png?v=1ce15bef",
+      "screenshotURLs": [
+        "https://ios.armsx2.net/assets/screenshots/01-library.jpg?v=4e846c3a",
+        "https://ios.armsx2.net/assets/screenshots/02-controller-skin.jpg?v=8694a8e4",
+        "https://ios.armsx2.net/assets/screenshots/03-pause-menu.jpg?v=2720efae",
+        "https://ios.armsx2.net/assets/screenshots/04-appearance.jpg?v=4292fef1"
+      ],
+      "tintColor": "#954CD5",
+      "category": "games",
+      "size": 26817536,
+      "versions": [
+        {
+          "version": "2.5.3-nightly.20260907.1443",
+          "buildVersion": "253",
+          "buildNumber": "253",
+          "date": "2026-09-07",
+          "localizedDescription": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260907\n\n- GameDB: fix Jak X softlocking on \"Saving Data\" after a profile save\n- iOS: a texture handed to PresentRect owes us its clear already flushed\n- iOS: the boot window was presenting a texture nothing ever wrote",
+          "downloadURL": "https://ios.armsx2.net/ipas/nightly/ARMSX2-Nightly-20260907-b69fbed079.ipa",
+          "size": 26817536,
+          "sha256": "31a795ce10d172f6439c677f353196fe50cf633c3cff16b6f31731e0cc69ab51",
+          "minOSVersion": "17.0"
+        }
+      ],
+      "permissions": [
+        {
+          "type": "network",
+          "usageDescription": "ARMSX2 uses local network access for PS2 online play through DEV9 sockets."
+        },
+        {
+          "type": "motion",
+          "usageDescription": "ARMSX2 uses device motion to control the emulated right analog stick when Gyroscope Camera is enabled."
+        }
+      ],
+      "appPermissions": {
+        "privacy": [
+          {
+            "name": "LocalNetwork",
+            "usageDescription": "ARMSX2 uses local network access for PS2 online play through DEV9 sockets."
+          },
+          {
+            "name": "Motion",
+            "usageDescription": "ARMSX2 uses device motion to control the emulated right analog stick when Gyroscope Camera is enabled."
+          }
+        ]
+      }
     }
   ],
   "news": [
-    {
-      "title": "ARMSX2 iOS 2.3.1",
-      "identifier": "ios-2.3.1",
-      "caption": "From @J1coding Cheats & Patches manager: Each game now has its own manager for .pnach cheats and patches, available from the game long-press menu or the in-game quick menu. You can view named entries, enable/disable them per game, remove…",
-      "date": "2026-06-24T18:41:00Z",
-      "url": "https://github.com/ARMSX2/ARMSX2/releases/tag/iOSv2.3.1",
-      "appID": "com.armsx2.ios",
-      "imageURL": "https://ios.armsx2.net/assets/icon.png?v=d83ffc2a",
-      "tintColor": "#1A7BB7",
-      "notify": false
-    },
     {
       "title": "ARMSX2 iOS 2.4.0",
       "identifier": "ios-2.4.0",
@@ -127,6 +168,17 @@
       "appID": "com.armsx2.ios",
       "imageURL": "https://ios.armsx2.net/assets/icon.png?v=d83ffc2a",
       "tintColor": "#1A7BB7",
+      "notify": false
+    },
+    {
+      "title": "ARMSX2 Nightly 2026-09-07",
+      "identifier": "ios-nightly-latest",
+      "caption": "- GameDB: fix Jak X softlocking on \"Saving Data\" after a profile save - iOS: a texture handed to PresentRect owes us its clear already flushed - iOS: the boot window was presenting a texture nothing ever wrote",
+      "date": "2026-09-07T14:43:45Z",
+      "url": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260907",
+      "appID": "com.armsx2.ios.nightly",
+      "imageURL": "https://ios.armsx2.net/assets/icon-nightly.png?v=1ce15bef",
+      "tintColor": "#954CD5",
       "notify": false
     }
   ]
