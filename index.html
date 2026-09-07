@@ -7,9 +7,115 @@
     <meta name="description" content="Modern PlayStation 2 emulation for iOS.">
     <title>ARMSX2 iOS</title>
     <link rel="icon" href="/assets/icon.png">
+    <style>
+      :root {
+        --bg: #0e1116;
+        --panel: #161b22;
+        --line: #262d38;
+        --text: #e6edf3;
+        --muted: #9aa7b4;
+        --tint: #2f6fad;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        padding: 3rem 1.25rem 4rem;
+        background: var(--bg);
+        color: var(--text);
+        font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      }
+
+      main { max-width: 40rem; margin: 0 auto; }
+
+      header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
+      header img { width: 72px; height: 72px; border-radius: 16px; }
+      h1 { margin: 0; font-size: 1.6rem; letter-spacing: -0.01em; }
+      header p { margin: 0.2rem 0 0; color: var(--muted); }
+
+      h2 { margin: 2.5rem 0 0.75rem; font-size: 1rem; text-transform: uppercase;
+           letter-spacing: 0.08em; color: var(--muted); }
+
+      .install { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+
+      .install a {
+        flex: 1 1 10rem;
+        padding: 0.7rem 1rem;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--panel);
+        color: var(--text);
+        text-align: center;
+        text-decoration: none;
+        font-weight: 600;
+      }
+
+      .install a:hover { border-color: var(--tint); }
+
+      code, .url {
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 0.9rem;
+      }
+
+      .url {
+        display: block;
+        padding: 0.75rem 1rem;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: var(--panel);
+        overflow-wrap: anywhere;
+      }
+
+      ul { margin: 0; padding-left: 1.2rem; color: var(--muted); }
+      li { margin: 0.35rem 0; }
+
+      a { color: var(--tint); }
+
+      footer {
+        margin-top: 3rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--line);
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+    </style>
   </head>
   <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
+    <main>
+      <header>
+        <img src="/assets/icon.png" alt="">
+        <div>
+          <h1>ARMSX2 iOS</h1>
+          <p>Modern PlayStation 2 emulation for iOS.</p>
+        </div>
+      </header>
+
+      <h2>Add the source</h2>
+      <div class="install">
+        <a href="livecontainer://source?url=https%3A%2F%2Fios.armsx2.net%2Fapps.json">LiveContainer</a>
+        <a href="sidestore://source?url=https%3A%2F%2Fios.armsx2.net%2Fapps.json">SideStore</a>
+        <a href="feather://source/https%3A%2F%2Fios.armsx2.net%2Fapps.json">Feather</a>
+      </div>
+
+      <h2>Or add it by hand</h2>
+      <span class="url">https://ios.armsx2.net/apps.json</span>
+
+      <h2>Before you start</h2>
+      <ul>
+        <li>A JIT-capable setup is required for playable performance.</li>
+        <li>You provide your own PS2 BIOS and your own legally dumped discs. Neither ships here.</li>
+        <li>Compatibility varies by device, iOS version, game and sideloading environment.</li>
+      </ul>
+
+      <footer>
+        <p>
+          Published documents:
+          <a href="/apps.json">apps.json</a> &middot;
+          <a href="/checksums.json">checksums.json</a>
+        </p>
+        <p>ARMSX2 is not affiliated with Sony Interactive Entertainment or PlayStation.</p>
+      </footer>
+    </main>
   </body>
 </html>

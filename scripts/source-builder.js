@@ -1,5 +1,4 @@
-import { copyFile, mkdir, stat } from "node:fs/promises";
-import { basename, dirname, extname, join, relative, resolve, sep } from "node:path";
+import { basename, extname, join, relative, resolve, sep } from "node:path";
 
 import { bundleIdentifier, repositoryRoot, sourceIdentifier } from "./constants.js";
 import { SourceGenerationError } from "./errors.js";
@@ -54,24 +53,6 @@ const findScreenshotFiles = async (generatorOptions, metadataPayload) => {
     .filter((directoryEntry) => imageExtensions.has(extname(directoryEntry.name).toLowerCase()))
     .map((directoryEntry) => relative(repositoryRoot, join(screenshotRoot, directoryEntry.name)).split(sep).join("/"))
     .sort((leftPath, rightPath) => leftPath.localeCompare(rightPath, undefined, { numeric: true }));
-};
-
-export const mirrorPublicAsset = async (publicRelativePath) => {
-  const sourcePath = resolve(repositoryRoot, publicRelativePath);
-  const mirrorPath = resolve(repositoryRoot, "public", publicRelativePath);
-
-  try {
-    await stat(sourcePath);
-  } catch (filesystemError) {
-    if (filesystemError?.code === "ENOENT") {
-      return;
-    }
-
-    throw filesystemError;
-  }
-
-  await mkdir(dirname(mirrorPath), { recursive: true });
-  await copyFile(sourcePath, mirrorPath);
 };
 
 const compactObject = (record) =>
@@ -167,7 +148,6 @@ export const generatedBuffers = async (generatorOptions) => {
   return {
     source: jsonBuffer(sourcePayload(ipaFileManifests, generatorOptions, metadataPayload, screenshotFiles)),
     checksums: jsonBuffer(checksumPayload(ipaFileManifests, generatorOptions)),
-    assetFiles: [iconFile, ...screenshotFiles],
     screenshotFiles,
     ipaCount: ipaFileManifests.length,
   };

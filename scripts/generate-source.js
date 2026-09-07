@@ -6,7 +6,7 @@ import { dirname, relative, resolve, sep } from "node:path";
 import { parseOptions, setOptionFlag, setOptionValue } from "./cli.js";
 import { defaultBaseUrl, repositoryRoot } from "./constants.js";
 import { SourceGenerationError } from "./errors.js";
-import { generatedBuffers, mirrorPublicAsset } from "./source-builder.js";
+import { generatedBuffers } from "./source-builder.js";
 
 const defaults = {
   inputDirectory: "ipas",
@@ -59,28 +59,10 @@ const checkedFileMatches = async (outputPath, generatedBuffer) => {
   }
 };
 
-const defaultOutputPaths = (generatorOptions) =>
-  generatorOptions.sourcePath === defaults.sourcePath
-    && generatorOptions.checksumPath === defaults.checksumPath;
-
-const outputTargets = (generatorOptions) => {
-  const sourceOutputPath = resolve(repositoryRoot, generatorOptions.sourcePath);
-  const checksumOutputPath = resolve(repositoryRoot, generatorOptions.checksumPath);
-  const targets = [
-    { label: "source", path: sourceOutputPath },
-    { label: "checksums", path: checksumOutputPath },
-  ];
-
-  if (!defaultOutputPaths(generatorOptions)) {
-    return targets;
-  }
-
-  return [
-    ...targets,
-    { label: "source", path: resolve(repositoryRoot, "public/apps.json") },
-    { label: "checksums", path: resolve(repositoryRoot, "public/checksums.json") },
-  ];
-};
+const outputTargets = (generatorOptions) => [
+  { label: "source", path: resolve(repositoryRoot, generatorOptions.sourcePath) },
+  { label: "checksums", path: resolve(repositoryRoot, generatorOptions.checksumPath) },
+];
 
 const assertGeneratedFilesCurrent = async (targets, generated) => {
   const targetStatuses = await Promise.all(
@@ -116,12 +98,6 @@ const runGenerator = async () => {
   }
 
   await writeGeneratedTargets(targets, generated);
-
-  if (defaultOutputPaths(generatorOptions)) {
-    for (const assetFile of generated.assetFiles) {
-      await mirrorPublicAsset(assetFile);
-    }
-  }
 
   console.log(`Indexed ${generated.ipaCount} IPA file${generated.ipaCount === 1 ? "" : "s"}.`);
 };
