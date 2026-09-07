@@ -37,8 +37,7 @@ export const publishedNightlyFileNames = (sourceJson) => new Set(
     .filter(Boolean),
 );
 
-// Anything the tool does not recognise is left alone. Deleting is only ever
-// decided by "this is one of ours and the published source no longer names it".
+// Anything unrecognised is left alone: we only delete our own files.
 export const prunableNightlies = (remoteNames, publishedNames) => {
   const remove = [];
   const keep = [];
@@ -95,8 +94,7 @@ const runPrune = async () => {
   console.log(remove.join("\n"));
 };
 
-// Imported by the tests for the two pure functions above, so only do the work
-// when this file is the thing being run.
+// The tests import this file, so only prune when it is the entry point.
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
     await runPrune();

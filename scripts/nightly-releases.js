@@ -16,6 +16,7 @@ export const nightlyCandidates = (releases) =>
       .map((asset) => ({
         asset,
         tag: release.tag_name,
+        htmlUrl: release.html_url ?? null,
         body: release.body ?? "",
         commit: asset.name.match(nightlyAssetPattern)[2].toLowerCase(),
         publishedAt: asset.created_at,

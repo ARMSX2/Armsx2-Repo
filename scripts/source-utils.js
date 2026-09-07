@@ -18,6 +18,11 @@ export const publicAssetUrl = (baseUrl, publicRelativePath) => {
   return new URL(encodedPathSegments, normalizedPublicBaseUrl(baseUrl)).href;
 };
 
+export const compactObject = (record) =>
+  Object.fromEntries(
+    Object.entries(record).filter(([, recordValue]) => recordValue !== null && recordValue !== undefined),
+  );
+
 export const jsonBuffer = (jsonPayload) =>
   Buffer.from(`${JSON.stringify(jsonPayload, null, 2)}\n`, "utf8");
 

@@ -75,10 +75,8 @@ const assertRepacked = (targetPath, originalPlist, version) => {
   return archive.getEntries().length;
 };
 
-// The upstream nightly ships the stable bundle identifier, so installing one
-// would replace the user's stable app. Rewrite the identity so the two are
-// separate apps. The IPAs are unsigned, so there is no signature to break, and
-// adm-zip copies every entry we do not touch verbatim.
+// Upstream nightlies carry the stable bundle id, so one would replace the
+// stable app. Rewriting it is safe because the IPAs are unsigned.
 export const repackNightlyIpa = async (sourcePath, targetPath, version) => {
   const archive = new AdmZip(sourcePath);
   const { entry, infoPlist } = infoPlistEntry(archive, sourcePath);

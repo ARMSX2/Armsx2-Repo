@@ -13,8 +13,10 @@ import {
   fetchGithubReleases,
   storeChangelog,
 } from "./github-releases.js";
-import { compareIpaManifests, ipaFileManifest } from "./ipa-metadata.js";
+import { compareIpaManifests, ipaFileManifest, sourceAppPermissions } from "./ipa-metadata.js";
+import { sourceNews } from "./source-news.js";
 import {
+  compactObject,
   jsonBuffer,
   optionalJsonDocument,
   publicAssetUrl,
@@ -36,6 +38,7 @@ const storeMetadata = async (generatorOptions) => {
   const metadataPayload = await optionalJsonDocument(metadataPath);
 
   return {
+    source: metadataPayload.source ?? {},
     app: metadataPayload.app ?? {},
     screenshots: metadataPayload.screenshots ?? {},
     releaseNotes: metadataPayload.releaseNotes ?? {},
@@ -43,7 +46,8 @@ const storeMetadata = async (generatorOptions) => {
 };
 
 const imageExtensions = new Set([".png", ".jpg", ".jpeg", ".webp"]);
-const iconFile = "assets/icon.png";
+const stableIconFile = "assets/icon.png";
+const nightlyIconFile = "assets/icon-nightly.png";
 
 const screenshotDirectory = (generatorOptions, metadataPayload) =>
   generatorOptions.screenshotDirectory
@@ -97,8 +101,10 @@ const nightlyChannelBuild = (ledger, generatorOptions) => {
 
   return {
     channel: {
-      name: ledger.app.name ?? "ARMSX2 Nightly",
+      name: ledger.app.name,
       bundleIdentifier: nightlyBundleIdentifier,
+      iconFile: nightlyIconFile,
+      category: ledger.app.category,
       subtitle: ledger.app.subtitle,
       localizedDescription: ledger.app.localizedDescription,
       tintColor: ledger.app.tintColor,
@@ -108,14 +114,11 @@ const nightlyChannelBuild = (ledger, generatorOptions) => {
   };
 };
 
-const compactObject = (record) =>
-  Object.fromEntries(
-    Object.entries(record).filter(([, recordValue]) => recordValue !== null && recordValue !== undefined),
-  );
-
 const sourceVersion = (manifest) =>
   compactObject({
     version: manifest.version,
+    buildVersion: manifest.buildVersion,
+    buildNumber: manifest.buildVersion,
     date: manifest.date,
     localizedDescription: manifest.localizedDescription,
     downloadURL: manifest.downloadURL,
@@ -126,12 +129,13 @@ const sourceVersion = (manifest) =>
   });
 
 const stableChannelApp = (metadataPayload) => ({
-  name: "ARMSX2 iOS",
+  name: metadataPayload.app.name,
   bundleIdentifier,
-  subtitle: metadataPayload.app.subtitle ?? "Modern PlayStation 2 emulation for iOS.",
-  localizedDescription: metadataPayload.app.localizedDescription
-    ?? "ARMSX2 brings PlayStation 2 emulation to iOS devices. Based on the open-source PCSX2 project, this ARM64-focused iOS build helps you revisit and preserve your own legally obtained PS2 game library on modern mobile hardware.",
-  tintColor: "#2F6FAD",
+  iconFile: stableIconFile,
+  subtitle: metadataPayload.app.subtitle,
+  localizedDescription: metadataPayload.app.localizedDescription,
+  tintColor: metadataPayload.app.tintColor,
+  category: metadataPayload.app.category,
 });
 
 const sourceApp = (channel, ipaFileManifests, generatorOptions, screenshotFiles) =>
@@ -141,20 +145,31 @@ const sourceApp = (channel, ipaFileManifests, generatorOptions, screenshotFiles)
     developerName: "ARMSX2",
     subtitle: channel.subtitle,
     localizedDescription: channel.localizedDescription,
-    iconURL: publicAssetUrl(generatorOptions.baseUrl, iconFile),
+    iconURL: publicAssetUrl(generatorOptions.baseUrl, channel.iconFile),
     screenshotURLs: screenshotFiles.map((screenshotFile) => publicAssetUrl(generatorOptions.baseUrl, screenshotFile)),
     tintColor: channel.tintColor,
+    category: channel.category,
+    size: ipaFileManifests[0]?.size,
     versions: ipaFileManifests.map(sourceVersion),
     permissions: channel.permissions?.length ? channel.permissions : undefined,
+    appPermissions: sourceAppPermissions(channel.permissions ?? []),
   });
 
-const sourcePayload = (channelBuilds, generatorOptions, screenshotFiles) => ({
-  name: "ARMSX2 iOS",
-  identifier: sourceIdentifier,
-  sourceURL: publicAssetUrl(generatorOptions.baseUrl, "apps.json"),
-  apps: channelBuilds.map(({ channel, manifests }) =>
-    sourceApp(channel, manifests, generatorOptions, screenshotFiles)),
-});
+const sourcePayload = (channelBuilds, generatorOptions, screenshotFiles, metadataPayload, news) =>
+  compactObject({
+    name: "ARMSX2 iOS",
+    identifier: sourceIdentifier,
+    sourceURL: publicAssetUrl(generatorOptions.baseUrl, "apps.json"),
+    subtitle: metadataPayload.source.subtitle,
+    description: metadataPayload.source.description,
+    iconURL: publicAssetUrl(generatorOptions.baseUrl, stableIconFile),
+    website: metadataPayload.source.website,
+    patreonURL: metadataPayload.source.patreonURL,
+    tintColor: metadataPayload.source.tintColor,
+    apps: channelBuilds.map(({ channel, manifests }) =>
+      sourceApp(channel, manifests, generatorOptions, screenshotFiles)),
+    news: news.length ? news : undefined,
+  });
 
 const checksumFileEntry = (manifest) => ({
   fileName: manifest.fileName,
@@ -205,15 +220,17 @@ export const generatedBuffers = async (generatorOptions) => {
     );
   }
 
+  const existingSource = await optionalJsonDocument(resolve(repositoryRoot, generatorOptions.sourcePath));
   const ledger = await nightlyLedger(generatorOptions);
   const stableBuild = {
     channel: { ...stableChannelApp(metadataPayload), permissions: ipaFileManifests[0]?.permissions },
     manifests: ipaFileManifests,
   };
   const channelBuilds = [stableBuild, nightlyChannelBuild(ledger, generatorOptions)].filter(Boolean);
+  const news = sourceNews(githubReleases, ledger, metadataPayload, existingSource.news ?? []);
 
   return {
-    source: jsonBuffer(sourcePayload(channelBuilds, generatorOptions, screenshotFiles)),
+    source: jsonBuffer(sourcePayload(channelBuilds, generatorOptions, screenshotFiles, metadataPayload, news)),
     checksums: jsonBuffer(checksumPayload(channelBuilds, generatorOptions)),
     screenshotFiles,
     ipaCount: channelBuilds.reduce((total, { manifests }) => total + manifests.length, 0),

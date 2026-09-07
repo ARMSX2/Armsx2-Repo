@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="color-scheme" content="dark">
-    <meta name="description" content="Modern PlayStation 2 emulation for iOS.">
+    <meta name="description" content="PlayStation 2 games on iPhone and iPad. Needs JIT.">
     <title>ARMSX2 iOS</title>
     <link rel="icon" href="/assets/icon.png">
     <style>
@@ -14,7 +14,7 @@
         --line: #262d38;
         --text: #e6edf3;
         --muted: #9aa7b4;
-        --tint: #2f6fad;
+        --tint: #1a7bb7;
       }
 
       * { box-sizing: border-box; }
@@ -90,7 +90,7 @@
         <img src="/assets/icon.png" alt="">
         <div>
           <h1>ARMSX2 iOS</h1>
-          <p class="tagline">Modern PlayStation 2 emulation for iOS.</p>
+          <p class="tagline">PlayStation 2 games on iPhone and iPad. Needs JIT.</p>
         </div>
       </header>
 
@@ -106,18 +106,27 @@
 
       <h2>Two channels, one source</h2>
       <p>
-        Adding the source lists both <strong>ARMSX2 iOS</strong>, the stable release, and
-        <strong>ARMSX2 Nightly</strong>, an automated build of the latest code. They install
-        as separate apps and keep separate save states, memory cards and settings, so a
-        nightly cannot disturb a working stable install. Nightly builds are not tested.
-        If you want to play, use the stable release.
+        The source carries two channels. <strong>ARMSX2 iOS</strong> is the stable release.
+        <strong>ARMSX2 Nightly</strong> is the latest code, built automatically most days, so
+        new features land there first. It sees less testing than a release, so expect the odd
+        bug. They install as separate apps and keep separate save states, memory cards and
+        settings, so a nightly cannot disturb a working stable install.
       </p>
 
       <h2>Before you start</h2>
       <ul>
-        <li>A JIT-capable setup is required for playable performance.</li>
-        <li>You provide your own PS2 BIOS and your own legally dumped discs. Neither ships here.</li>
-        <li>Compatibility varies by device, iOS version, game and sideloading environment.</li>
+        <li>iPhone or iPad on iOS 17 or later, and a JIT-capable setup. Without JIT most games are too slow to play.</li>
+        <li>You provide your own PS2 BIOS and your own game files. Neither ships here.</li>
+        <li>How well a game runs depends on your device, your iOS version and the game. Some are perfect, some are slow, some do not boot.</li>
+      </ul>
+
+      <h2>More</h2>
+      <ul>
+        <li><a href="https://armsx2.net">armsx2.net</a> — builds for other platforms, docs and the FAQ</li>
+        <li><a href="https://armsx2.net/compatibility">Compatibility list</a> — worth checking a game before you start</li>
+        <li><a href="https://discord.gg/S7VxwfS8w9">Discord</a> — where to ask when something breaks</li>
+        <li><a href="https://github.com/ARMSX2/ARMSX2">Source code</a> — ARMSX2 is GPL-3.0</li>
+        <li>Support development on <a href="https://www.patreon.com/cw/ARMSX2">Patreon</a> or <a href="https://ko-fi.com/armsx2">Ko-fi</a></li>
       </ul>
 
       <footer>
@@ -126,7 +135,11 @@
           <a href="/apps.json">apps.json</a> &middot;
           <a href="/checksums.json">checksums.json</a>
         </p>
-        <p>ARMSX2 is not affiliated with Sony Interactive Entertainment or PlayStation.</p>
+        <p>
+          ARMSX2 is open source and builds on PCSX2. It is not officially associated with
+          PCSX2, and not affiliated with Sony Interactive Entertainment, PlayStation, or
+          ARM Holdings.
+        </p>
       </footer>
     </main>
   </body>
