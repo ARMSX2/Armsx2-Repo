@@ -59,6 +59,27 @@ test("markdownToStoreText does not end on a heading whose section was cut", () =
   assert.ok(!storeText.includes("Sprite hacks"), "an orphaned heading is dropped with its section");
 });
 
+test("markdownToStoreText still says something when the first paragraph is oversized", () => {
+  const storeText = markdownToStoreText(`Sentence one is here. ${"word ".repeat(600)}`);
+
+  assert.ok(storeText.length > 1000, "a long opening paragraph is trimmed, not thrown away");
+  assert.ok(storeText.endsWith("\n\n…"));
+  assert.ok(!storeText.includes("  "), "the cut lands on a word boundary");
+});
+
+test("markdownToStoreText does not mistake a short bullet for a heading", () => {
+  const storeText = markdownToStoreText([
+    "word ".repeat(370).trim(),
+    "- Fix audio crackle",
+    "- Faster VU1",
+    "tail ".repeat(400).trim(),
+  ].join("\n\n"));
+
+  assert.ok(storeText.endsWith("\n\n…"), "the oversized tail was cut");
+  assert.ok(storeText.includes("- Fix audio crackle"));
+  assert.ok(storeText.includes("- Faster VU1"));
+});
+
 test("markdownToStoreText leaves a short description alone", () => {
   const storeText = markdownToStoreText("One line.\n\nTwo lines.");
 

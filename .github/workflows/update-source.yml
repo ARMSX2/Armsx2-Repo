@@ -18,7 +18,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: update-source
+  group: source-update
   cancel-in-progress: false
 
 jobs:
@@ -53,6 +53,8 @@ jobs:
 
       - name: Regenerate source files
         if: steps.sync.outputs.changed == 'true'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run generate:source
 
       - name: Validate generated source

@@ -1,0 +1,135 @@
+name: Mirror Nightly
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "47 */6 * * *"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: source-update
+  cancel-in-progress: false
+
+jobs:
+  mirror-nightly:
+    runs-on: ubuntu-latest
+
+    env:
+      ARMSX2_PUBLIC_BASE_URL: https://ios.armsx2.net
+      DEPLOY_ROOT: /home/armsx2-ios/htdocs/ios.armsx2.net
+      SSH_OPTIONS: -o StrictHostKeyChecking=yes -o UserKnownHostsFile=.ssh-known-hosts
+
+    steps:
+      # A push made with GITHUB_TOKEN does not start another workflow, so the
+      # deploy would never run and the nightly would never reach the site.
+      - name: Require a push token that triggers the deploy
+        env:
+          SOURCE_UPDATE_TOKEN: ${{ secrets.SOURCE_UPDATE_TOKEN }}
+        run: |
+          if [ -z "$SOURCE_UPDATE_TOKEN" ]; then
+            echo "SOURCE_UPDATE_TOKEN is not set; a nightly commit would not trigger a deploy."
+            exit 1
+          fi
+
+      - name: Check out repository
+        uses: actions/checkout@v6
+        with:
+          token: ${{ secrets.SOURCE_UPDATE_TOKEN }}
+
+      - name: Set up Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Mirror the newest nightly
+        id: mirror
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/mirror-nightly.js
+
+      - name: Prepare the SSH client
+        if: steps.mirror.outputs.changed == 'true'
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_HOST_KEY: ${{ secrets.SERVER_HOST_KEY }}
+        run: |
+          sudo apt-get update && sudo apt-get install -y sshpass rsync
+
+          if [ -n "$SERVER_HOST_KEY" ]; then
+            printf '%s\n' "$SERVER_HOST_KEY" > .ssh-known-hosts
+          else
+            echo "SERVER_HOST_KEY is not set; trusting the host on first contact."
+            ssh-keyscan -H "$SERVER_HOST" > .ssh-known-hosts 2>/dev/null
+          fi
+
+      # Upload before recording. If this fails nothing is committed, so the
+      # published source can never name a download that is not there.
+      - name: Upload the nightly IPA
+        if: steps.mirror.outputs.changed == 'true'
+        env:
+          SSHPASS: ${{ secrets.SERVER_PASSWORD }}
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+        run: |
+          sshpass -e ssh $SSH_OPTIONS "armsx2-ios@${SERVER_HOST}" \
+            "mkdir -p '${DEPLOY_ROOT}/ipas/nightly'"
+          rsync -rlt -e "sshpass -e ssh $SSH_OPTIONS" \
+            .nightly/ "armsx2-ios@${SERVER_HOST}:${DEPLOY_ROOT}/ipas/nightly/"
+
+      # The ledger is committed on its own and rebased first, then apps.json and
+      # checksums.json are regenerated on top. Rebasing the generated files
+      # instead is worse than it looks: git usually merges them cleanly and
+      # produces a document no generation would ever emit, which then fails
+      # check:source on every later push until someone regenerates by hand.
+      - name: Commit the ledger
+        if: steps.mirror.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add metadata/nightly.json
+
+          if git diff --cached --quiet; then
+            echo "Nothing to commit."
+            exit 1
+          fi
+
+          git commit -m "Mirror ARMSX2 iOS nightly: ${{ steps.mirror.outputs.version }}"
+
+          git checkout -- apps.json checksums.json
+          git pull --rebase origin "${{ github.ref_name }}"
+
+          npm run generate:source
+          npm run check:source
+          npm run validate:source -- --nightly-dir .nightly
+
+          git add apps.json checksums.json
+          git commit --amend --no-edit
+          git push origin "HEAD:${{ github.ref_name }}"
+
+      # Driven by the live document, not by this run: a build is only removed
+      # once the source that stopped naming it is actually being served. Until
+      # the deploy lands, this is a no-op and the next run cleans up.
+      - name: Prune retired nightlies
+        if: steps.mirror.outputs.changed == 'true'
+        env:
+          SSHPASS: ${{ secrets.SERVER_PASSWORD }}
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+        run: |
+          sshpass -e ssh $SSH_OPTIONS "armsx2-ios@${SERVER_HOST}" \
+            "ls -A '${DEPLOY_ROOT}/ipas/nightly'" > remote-nightlies.txt
+
+          node scripts/prune-nightly.js < remote-nightlies.txt > retired-nightlies.txt
+
+          if [ ! -s retired-nightlies.txt ]; then
+            echo "Nothing to prune."
+            exit 0
+          fi
+
+          tr '\n' '\0' < retired-nightlies.txt \
+            | sshpass -e ssh $SSH_OPTIONS "armsx2-ios@${SERVER_HOST}" \
+              "cd '${DEPLOY_ROOT}/ipas/nightly' && xargs -0 -r rm -f --"

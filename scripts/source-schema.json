@@ -3,87 +3,214 @@
   "title": "ARMSX2 iOS source document",
   "type": "object",
   "additionalProperties": false,
-  "required": ["name", "identifier", "apps"],
+  "required": [
+    "name",
+    "identifier",
+    "apps"
+  ],
   "properties": {
-    "name": { "type": "string", "minLength": 1 },
-    "identifier": { "type": "string", "minLength": 1 },
-    "sourceURL": { "type": "string" },
+    "name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "identifier": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sourceURL": {
+      "type": "string"
+    },
     "apps": {
       "type": "array",
       "minItems": 1,
-      "items": { "$ref": "#/definitions/app" }
+      "items": {
+        "$ref": "#/definitions/app"
+      }
     },
     "news": {
       "type": "array",
-      "items": { "$ref": "#/definitions/newsItem" }
+      "items": {
+        "$ref": "#/definitions/newsItem"
+      }
     }
   },
   "definitions": {
     "app": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["name", "bundleIdentifier", "developerName", "localizedDescription", "iconURL", "versions"],
+      "required": [
+        "name",
+        "bundleIdentifier",
+        "developerName",
+        "localizedDescription",
+        "iconURL",
+        "versions"
+      ],
       "properties": {
-        "name": { "type": "string", "minLength": 1 },
-        "bundleIdentifier": { "type": "string", "minLength": 1 },
-        "developerName": { "type": "string", "minLength": 1 },
-        "subtitle": { "type": "string" },
-        "localizedDescription": { "type": "string", "minLength": 1 },
-        "iconURL": { "type": "string" },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "bundleIdentifier": {
+          "type": "string",
+          "minLength": 1
+        },
+        "developerName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "subtitle": {
+          "type": "string"
+        },
+        "localizedDescription": {
+          "type": "string",
+          "minLength": 1
+        },
+        "iconURL": {
+          "type": "string"
+        },
         "screenshotURLs": {
           "type": "array",
-          "items": { "type": "string" }
+          "items": {
+            "type": "string"
+          }
         },
-        "tintColor": { "type": "string", "pattern": "^#?[0-9A-Fa-f]{6}$" },
+        "tintColor": {
+          "type": "string",
+          "pattern": "^#?[0-9A-Fa-f]{6}$"
+        },
         "permissions": {
           "type": "array",
-          "items": { "$ref": "#/definitions/permission" }
+          "items": {
+            "$ref": "#/definitions/permission"
+          }
         },
         "versions": {
           "type": "array",
           "minItems": 1,
-          "items": { "$ref": "#/definitions/version" }
+          "items": {
+            "$ref": "#/definitions/version"
+          }
         }
       }
     },
     "version": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["version", "date", "downloadURL", "size"],
+      "required": [
+        "version",
+        "date",
+        "downloadURL",
+        "size"
+      ],
       "properties": {
-        "version": { "type": "string", "minLength": 1 },
-        "date": { "type": "string", "minLength": 1 },
-        "localizedDescription": { "type": "string" },
-        "downloadURL": { "type": "string" },
-        "size": { "type": "integer", "minimum": 1 },
-        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
-        "minOSVersion": { "type": "string" },
-        "maxOSVersion": { "type": "string" }
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "date": {
+          "type": "string",
+          "minLength": 1
+        },
+        "localizedDescription": {
+          "type": "string"
+        },
+        "downloadURL": {
+          "type": "string"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "minOSVersion": {
+          "type": "string"
+        },
+        "maxOSVersion": {
+          "type": "string"
+        }
       }
     },
     "permission": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["type", "usageDescription"],
+      "required": [
+        "type",
+        "usageDescription"
+      ],
       "properties": {
-        "type": { "type": "string", "minLength": 1 },
-        "usageDescription": { "type": "string", "minLength": 1 }
+        "type": {
+          "type": "string",
+          "enum": [
+            "photos",
+            "camera",
+            "location",
+            "contacts",
+            "reminders",
+            "music",
+            "microphone",
+            "speech-recognition",
+            "background-audio",
+            "background-fetch",
+            "bluetooth",
+            "network",
+            "calendars",
+            "faceid",
+            "siri",
+            "motion"
+          ]
+        },
+        "usageDescription": {
+          "type": "string",
+          "minLength": 1
+        }
       }
     },
     "newsItem": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["title", "identifier", "caption", "date"],
+      "required": [
+        "title",
+        "identifier",
+        "caption",
+        "date"
+      ],
       "properties": {
-        "title": { "type": "string", "minLength": 1 },
-        "identifier": { "type": "string", "minLength": 1 },
-        "caption": { "type": "string", "minLength": 1 },
-        "date": { "type": "string", "minLength": 1 },
-        "tintColor": { "type": "string", "pattern": "^#?[0-9A-Fa-f]{6}$" },
-        "imageURL": { "type": "string" },
-        "notify": { "type": "boolean" },
-        "url": { "type": "string" },
-        "appID": { "type": "string" }
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "identifier": {
+          "type": "string",
+          "minLength": 1
+        },
+        "caption": {
+          "type": "string",
+          "minLength": 1
+        },
+        "date": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tintColor": {
+          "type": "string",
+          "pattern": "^#?[0-9A-Fa-f]{6}$"
+        },
+        "imageURL": {
+          "type": "string"
+        },
+        "notify": {
+          "type": "boolean"
+        },
+        "url": {
+          "type": "string"
+        },
+        "appID": {
+          "type": "string"
+        }
       }
     }
   }

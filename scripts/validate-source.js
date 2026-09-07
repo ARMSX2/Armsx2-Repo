@@ -5,17 +5,23 @@ import { execFile } from "node:child_process";
 import { mkdtemp, readdir, readFile, rm, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, extname, join, relative, resolve, sep } from "node:path";
+import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 
 import { parseOptions, setOptionFlag, setOptionValue } from "./cli.js";
 import {
   bundleIdentifier,
   canonicalBaseUrl,
+  knownBundleIdentifiers,
+  nightlyBundleIdentifier,
+  nightlyDirectory,
   canonicalSourceUrl,
   repositoryRoot,
   sourceIdentifier,
 } from "./constants.js";
 import { ipaFileManifest } from "./ipa-metadata.js";
+import { nightlyVersion } from "./nightly-ipa.js";
+import { optionalJsonDocument } from "./source-utils.js";
 
 const execFileAsync = promisify(execFile);
 const schemaPath = resolve(repositoryRoot, "scripts/source-schema.json");
@@ -25,6 +31,8 @@ const defaults = {
   sourcePath: "apps.json",
   checksumPath: "checksums.json",
   ipaDirectory: "ipas",
+  nightlyPath: "metadata/nightly.json",
+  nightlyDirectory: null,
   offlineFallback: true,
   legacyPurge: true,
 };
@@ -50,6 +58,8 @@ const parseArguments = (cliArguments) => parseOptions(
     "--source": setOptionValue("sourcePath"),
     "--checksums": setOptionValue("checksumPath"),
     "--ipa-dir": setOptionValue("ipaDirectory"),
+    "--nightly": setOptionValue("nightlyPath"),
+    "--nightly-dir": setOptionValue("nightlyDirectory"),
     "--skip-offline-fallback": setOptionFlag("offlineFallback", false),
     "--skip-legacy-purge": setOptionFlag("legacyPurge", false),
   },
@@ -181,10 +191,20 @@ const validateStrictSourceShape = (sourceJson) => {
     }
   }
 
+  const publishedIdentifiers = new Set();
+
   for (const [appIndex, sourceApp] of sourceJson.apps?.entries?.() ?? []) {
-    if (sourceApp.bundleIdentifier !== bundleIdentifier) {
-      errors.push(`apps[${appIndex}].bundleIdentifier must be ${bundleIdentifier}.`);
+    if (!knownBundleIdentifiers.has(sourceApp.bundleIdentifier)) {
+      errors.push(
+        `apps[${appIndex}].bundleIdentifier must be one of ${[...knownBundleIdentifiers].join(", ")}.`,
+      );
     }
+
+    if (publishedIdentifiers.has(sourceApp.bundleIdentifier)) {
+      errors.push(`apps[${appIndex}].bundleIdentifier ${sourceApp.bundleIdentifier} is listed twice.`);
+    }
+
+    publishedIdentifiers.add(sourceApp.bundleIdentifier);
 
     if (!isCanonicalPublicUrl(sourceApp.iconURL)) {
       errors.push(`apps[${appIndex}].iconURL must use ${canonicalBaseUrl}.`);
@@ -218,6 +238,10 @@ const validateStrictSourceShape = (sourceJson) => {
     }
   }
 
+  if (!publishedIdentifiers.has(bundleIdentifier)) {
+    errors.push(`apps.json must publish ${bundleIdentifier}.`);
+  }
+
   return errors;
 };
 
@@ -245,17 +269,18 @@ const validateChecksumManifest = (sourceJson, checksumJson) => {
     return errors;
   }
 
-  const sourceDownloadURLs = new Set(
+  const publishingApp = new Map(
     (sourceJson.apps ?? []).flatMap((sourceApp) =>
-      (sourceApp.versions ?? []).map((sourceVersion) => sourceVersion.downloadURL),
-    ),
+      (sourceApp.versions ?? []).map((sourceVersion) => [sourceVersion.downloadURL, sourceApp])),
   );
 
   for (const [fileIndex, checksumEntry] of checksumJson.files.entries()) {
     const checksumPath = `files[${fileIndex}]`;
 
-    if (checksumEntry.bundleIdentifier !== bundleIdentifier) {
-      errors.push(`${checksumPath}.bundleIdentifier must be ${bundleIdentifier}.`);
+    if (!knownBundleIdentifiers.has(checksumEntry.bundleIdentifier)) {
+      errors.push(
+        `${checksumPath}.bundleIdentifier must be one of ${[...knownBundleIdentifiers].join(", ")}.`,
+      );
     }
 
     if (!/^[0-9a-f]{64}$/u.test(checksumEntry.sha256 ?? "")) {
@@ -270,8 +295,14 @@ const validateChecksumManifest = (sourceJson, checksumJson) => {
       errors.push(`${checksumPath}.buildVersion must be a non-empty string.`);
     }
 
-    if (!sourceDownloadURLs.has(checksumEntry.downloadURL)) {
+    const sourceApp = publishingApp.get(checksumEntry.downloadURL);
+
+    if (!sourceApp) {
       errors.push(`${checksumPath}.downloadURL is absent from apps.json.`);
+    } else if (sourceApp.bundleIdentifier !== checksumEntry.bundleIdentifier) {
+      errors.push(
+        `${checksumPath}.bundleIdentifier is ${checksumEntry.bundleIdentifier} but apps.json publishes that download under ${sourceApp.bundleIdentifier}.`,
+      );
     }
 
     if (!isCanonicalPublicUrl(checksumEntry.downloadURL)) {
@@ -311,9 +342,32 @@ const validateLocalAssets = async (sourceJson) => {
   return errors;
 };
 
+// Nightly binaries are mirrored straight to the server and never committed, so
+// only the build being mirrored right now is ever on disk. --nightly-dir points
+// at it and it gets the same byte verification as a stable release; retained
+// older builds have no local file and are skipped.
+const optionalFileStats = async (filePath) => {
+  try {
+    return await stat(filePath);
+  } catch {
+    return null;
+  }
+};
+
+const localIpaPath = (checksumEntry, validationOptions) => {
+  const fileName = basename(checksumEntry.fileName ?? "");
+
+  if (checksumEntry.bundleIdentifier === nightlyBundleIdentifier) {
+    return validationOptions.nightlyDirectory
+      ? resolve(repositoryRoot, validationOptions.nightlyDirectory, fileName)
+      : null;
+  }
+
+  return resolve(repositoryRoot, validationOptions.ipaDirectory, fileName);
+};
+
 const validateLocalIpas = async (sourceJson, checksumJson, validationOptions) => {
   const errors = [];
-  const ipaDirectory = resolve(repositoryRoot, validationOptions.ipaDirectory);
   const sourceVersionsByDownloadURL = new Map(
     matchingSourceVersions(sourceJson).map(({ version }) => [version.downloadURL, version]),
   );
@@ -321,8 +375,16 @@ const validateLocalIpas = async (sourceJson, checksumJson, validationOptions) =>
   for (const [fileIndex, checksumEntry] of (checksumJson.files ?? []).entries()) {
     const checksumPath = `files[${fileIndex}]`;
     const sourceVersion = sourceVersionsByDownloadURL.get(checksumEntry.downloadURL);
-    const ipaPath = resolve(ipaDirectory, basename(checksumEntry.fileName ?? ""));
-    const fileStats = await assertFileExists(ipaPath, `${checksumPath}.fileName local IPA`, errors);
+    const ipaPath = localIpaPath(checksumEntry, validationOptions);
+
+    if (!ipaPath) {
+      continue;
+    }
+
+    const isNightly = checksumEntry.bundleIdentifier === nightlyBundleIdentifier;
+    const fileStats = isNightly
+      ? await optionalFileStats(ipaPath)
+      : await assertFileExists(ipaPath, `${checksumPath}.fileName local IPA`, errors);
 
     if (!fileStats) {
       continue;
@@ -330,7 +392,10 @@ const validateLocalIpas = async (sourceJson, checksumJson, validationOptions) =>
 
     let manifest;
     try {
-      manifest = await ipaFileManifest(ipaPath, { baseUrl: canonicalBaseUrl });
+      manifest = await ipaFileManifest(ipaPath, {
+        baseUrl: canonicalBaseUrl,
+        bundleIdentifier: checksumEntry.bundleIdentifier,
+      });
     } catch (metadataError) {
       const message = metadataError instanceof Error ? metadataError.message : String(metadataError);
       errors.push(`${checksumPath}.fileName could not be read as a valid IPA: ${message}`);
@@ -359,6 +424,10 @@ const validateLocalIpas = async (sourceJson, checksumJson, validationOptions) =>
 
     if (sourceVersion && sourceVersion.size !== fileStats.size) {
       errors.push(`${checksumPath}.size must match apps.json size ${sourceVersion.size}.`);
+    }
+
+    if (sourceVersion && sourceVersion.sha256 !== manifest.sha256) {
+      errors.push(`${checksumPath}.sha256 must match apps.json for ${checksumEntry.downloadURL}.`);
     }
   }
 
@@ -474,6 +543,147 @@ const validateLegacyPurge = async () => {
   return errors;
 };
 
+// The bytes live on the server, so CI cannot re-hash a retained nightly. What
+// it can do is insist every field of a row agrees with the build the row says
+// it is, which is what catches a corrupt or hand-edited ledger.
+export const ledgerRowSelfConsistency = (buildPath, build) => {
+  const errors = [];
+
+  if (!/^nightly-\d{8}$/u.test(build.tag ?? "")) {
+    errors.push(`${buildPath}.tag ${build.tag} is not an upstream nightly tag.`);
+    return errors;
+  }
+
+  if (!/^[0-9a-f]{7,40}$/u.test(build.commit ?? "")) {
+    errors.push(`${buildPath}.commit ${build.commit} is not a commit hash.`);
+    return errors;
+  }
+
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z$/u.test(build.publishedAt ?? "")) {
+    errors.push(`${buildPath}.publishedAt ${build.publishedAt} is not a UTC timestamp.`);
+    return errors;
+  }
+
+  const day = build.publishedAt.slice(0, 10).replaceAll("-", "");
+  const expectedFileName = `ARMSX2-Nightly-${day}-${build.commit}.ipa`;
+
+  if (build.fileName !== expectedFileName) {
+    errors.push(`${buildPath}.fileName should be ${expectedFileName}.`);
+  }
+
+  if (build.date !== build.publishedAt.slice(0, 10)) {
+    errors.push(`${buildPath}.date should be ${build.publishedAt.slice(0, 10)}.`);
+  }
+
+  const expectedVersion = nightlyVersion(build.upstreamVersion ?? "", build.publishedAt);
+
+  if (build.version !== expectedVersion) {
+    errors.push(`${buildPath}.version should be ${expectedVersion}.`);
+  }
+
+  return errors;
+};
+
+const nightlyVersionsFromSource = (sourceJson) =>
+  (sourceJson.apps ?? [])
+    .filter((sourceApp) => sourceApp.bundleIdentifier === nightlyBundleIdentifier)
+    .flatMap((sourceApp) => sourceApp.versions ?? []);
+
+const validateNightlyLedger = async (sourceJson, checksumJson, validationOptions) => {
+  const errors = [];
+  const ledger = await optionalJsonDocument(resolve(repositoryRoot, validationOptions.nightlyPath), {});
+  const builds = ledger.builds ?? [];
+  const retain = ledger.retain ?? 5;
+
+  if (builds.length > retain) {
+    errors.push(`metadata/nightly.json keeps ${builds.length} builds but retain is ${retain}.`);
+  }
+
+  const seenFileNames = new Set();
+  const seenVersions = new Set();
+  let previousTimestamp = null;
+
+  for (const [buildIndex, build] of builds.entries()) {
+    const buildPath = `nightly builds[${buildIndex}]`;
+
+    if (seenFileNames.has(build.fileName)) {
+      errors.push(`${buildPath}.fileName ${build.fileName} is listed twice.`);
+    }
+
+    if (seenVersions.has(build.version)) {
+      errors.push(`${buildPath}.version ${build.version} is listed twice.`);
+    }
+
+    seenFileNames.add(build.fileName);
+    seenVersions.add(build.version);
+    errors.push(...ledgerRowSelfConsistency(buildPath, build));
+
+    if (!/^[0-9a-f]{64}$/u.test(build.sha256 ?? "")) {
+      errors.push(`${buildPath}.sha256 must be a lowercase SHA-256 hex digest.`);
+    }
+
+    if (!Number.isSafeInteger(build.size) || build.size <= 0) {
+      errors.push(`${buildPath}.size must be a positive integer.`);
+    }
+
+    if (previousTimestamp !== null && !(build.publishedAt < previousTimestamp)) {
+      errors.push(`${buildPath}.publishedAt must be older than the build before it.`);
+    }
+
+    previousTimestamp = build.publishedAt;
+  }
+
+  const publishedVersions = nightlyVersionsFromSource(sourceJson);
+
+  if (publishedVersions.length !== builds.length) {
+    errors.push(
+      `apps.json publishes ${publishedVersions.length} nightly versions but the ledger holds ${builds.length}.`,
+    );
+    return errors;
+  }
+
+  const checksumsByDownloadURL = new Map(
+    (checksumJson.files ?? []).map((checksumEntry) => [checksumEntry.downloadURL, checksumEntry]),
+  );
+
+  for (const [buildIndex, build] of builds.entries()) {
+    const buildPath = `nightly builds[${buildIndex}]`;
+    const published = publishedVersions[buildIndex];
+    const expectedDownloadURL = `${canonicalBaseUrl}/${nightlyDirectory}/${build.fileName}`;
+
+    if (published.downloadURL !== expectedDownloadURL) {
+      errors.push(`${buildPath} is published as ${published.downloadURL}; expected ${expectedDownloadURL}.`);
+      continue;
+    }
+
+    for (const field of ["version", "date", "size", "sha256"]) {
+      if (published[field] !== build[field]) {
+        errors.push(`${buildPath}.${field} does not match apps.json.`);
+      }
+    }
+
+    const checksumEntry = checksumsByDownloadURL.get(expectedDownloadURL);
+
+    if (!checksumEntry) {
+      errors.push(`${buildPath} is absent from checksums.json.`);
+      continue;
+    }
+
+    for (const field of ["version", "buildVersion", "date", "size", "sha256", "fileName"]) {
+      if (checksumEntry[field] !== build[field]) {
+        errors.push(`${buildPath}.${field} does not match checksums.json.`);
+      }
+    }
+  }
+
+  return errors;
+};
+
+const changelogPrefixes = {
+  [bundleIdentifier]: "Updated to ARMSX2 iOS",
+  [nightlyBundleIdentifier]: "Nightly build ",
+};
+
 const validateOfflineFallback = async () => {
   const temporaryDirectory = await mkdtemp(join(tmpdir(), "armsx2-offline-source-"));
 
@@ -491,20 +701,37 @@ const validateOfflineFallback = async () => {
     ], { cwd: repositoryRoot });
 
     const offlineSource = await jsonDocument(offlineSourcePath);
-    const descriptions = (offlineSource.apps ?? [])
-      .flatMap((sourceApp) => sourceApp.versions ?? [])
-      .map((sourceVersion) => sourceVersion.localizedDescription)
-      .filter(Boolean);
+    const errors = [];
+    const describedPerChannel = new Map();
 
-    if (descriptions.length === 0) {
-      return ["offline fallback generation produced no version descriptions."];
+    for (const sourceApp of offlineSource.apps ?? []) {
+      const expectedPrefix = changelogPrefixes[sourceApp.bundleIdentifier];
+
+      for (const sourceVersion of sourceApp.versions ?? []) {
+        if (!sourceVersion.localizedDescription) {
+          continue;
+        }
+
+        describedPerChannel.set(
+          sourceApp.bundleIdentifier,
+          (describedPerChannel.get(sourceApp.bundleIdentifier) ?? 0) + 1,
+        );
+
+        if (!sourceVersion.localizedDescription.startsWith(expectedPrefix)) {
+          errors.push(
+            `offline fallback generation produced an unpolished changelog for ${sourceApp.bundleIdentifier}.`,
+          );
+        }
+      }
     }
 
-    if (descriptions.some((description) => !description.startsWith("Updated to ARMSX2 iOS"))) {
-      return ["offline fallback generation produced an unpolished changelog."];
+    // Only the stable channel exercises the offline path at all, so a nightly
+    // description must never stand in for a missing stable one.
+    if (!describedPerChannel.get(bundleIdentifier)) {
+      errors.push("offline fallback generation produced no stable version descriptions.");
     }
 
-    return [];
+    return [...new Set(errors)];
   } finally {
     await rm(temporaryDirectory, { recursive: true, force: true });
   }
@@ -518,6 +745,7 @@ const runValidation = async () => {
     ...await validateAgainstSourceSchema(sourceJson),
     ...validateStrictSourceShape(sourceJson),
     ...validateChecksumManifest(sourceJson, checksumJson),
+    ...await validateNightlyLedger(sourceJson, checksumJson, validationOptions),
     ...await validateLocalAssets(sourceJson),
     ...await validateLocalIpas(sourceJson, checksumJson, validationOptions),
     ...(validationOptions.offlineFallback ? await validateOfflineFallback() : []),
@@ -531,9 +759,13 @@ const runValidation = async () => {
   console.log("apps.json and checksums.json validate against source, asset, and IPA checks.");
 };
 
-try {
-  await runValidation();
-} catch (validationError) {
-  console.error(validationError instanceof Error ? validationError.message : validationError);
-  process.exitCode = 1;
+// Imported by the tests for the pure checks above, so only validate when this
+// file is the thing being run.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  try {
+    await runValidation();
+  } catch (validationError) {
+    console.error(validationError instanceof Error ? validationError.message : validationError);
+    process.exitCode = 1;
+  }
 }
