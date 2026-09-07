@@ -6,128 +6,294 @@
     <meta name="color-scheme" content="dark">
     <meta name="description" content="PlayStation 2 games on iPhone and iPad. Needs JIT.">
     <title>ARMSX2 iOS</title>
-    <link rel="icon" href="/assets/icon.png">
+    <link rel="icon" href="/assets/icon.png?v=d83ffc2a">
     <style>
       :root {
-        --bg: #0e1116;
-        --panel: #161b22;
-        --line: #262d38;
-        --text: #e6edf3;
-        --muted: #9aa7b4;
-        --tint: #1a7bb7;
+        --bg: #0b0d10;
+        --panel: #15191f;
+        --line: #232a33;
+        --text: #e9eef4;
+        --muted: #93a1b1;
+        --tint: #4ba3e3;
       }
 
       * { box-sizing: border-box; }
 
       body {
+        position: relative;
         margin: 0;
-        padding: 3rem 1.25rem 4rem;
+        padding: 0 1.25rem 4rem;
         background: var(--bg);
         color: var(--text);
         font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+        overflow-x: hidden;
       }
 
-      main { max-width: 40rem; margin: 0 auto; }
+      /* The icon, blurred out behind the header. Feather builds its hero the
+         same way, and it is the only thing on the page with any colour in it.
+         The blur is inset past the edges so it has room to spread, and the
+         wrapper clips it — otherwise it bleeds down the whole page. */
+      .hero {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 22rem;
+        overflow: hidden;
+        z-index: -1;
+      }
 
-      header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
-      header img { width: 72px; height: 72px; border-radius: 16px; }
-      h1 { margin: 0; font-size: 1.6rem; letter-spacing: -0.01em; }
-      header .tagline { margin: 0.2rem 0 0; }
+      .hero::before,
+      .hero::after { content: ""; position: absolute; }
 
-      h2 { margin: 2.5rem 0 0.75rem; font-size: 1rem; text-transform: uppercase;
-           letter-spacing: 0.08em; color: var(--muted); }
+      .hero::before {
+        inset: -30% -30% -60%;
+        background: url("/assets/icon.png?v=d83ffc2a") no-repeat;
+        background-size: 30rem;
+        background-position: 26% 58%;
+        filter: blur(52px) saturate(1.5);
+        opacity: 0.85;
+      }
 
-      .install { display: flex; flex-wrap: wrap; gap: 0.6rem; }
+      .hero::after {
+        inset: 0;
+        background: linear-gradient(180deg, rgba(11, 13, 16, 0.2), rgba(11, 13, 16, 0.72) 58%, var(--bg));
+      }
+
+      main { max-width: 42rem; margin: 0 auto; }
+
+      .app {
+        display: flex;
+        align-items: center;
+        gap: 1.15rem;
+        padding: 7rem 0 2rem;
+      }
+
+      .app img {
+        width: 118px;
+        height: 118px;
+        border-radius: 27px;
+        border: 1px solid rgba(255, 255, 255, 0.09);
+        flex: 0 0 auto;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 2rem;
+        letter-spacing: -0.02em;
+      }
+
+      .subtitle { margin: 0.35rem 0 0; color: var(--muted); }
+
+      h2 {
+        margin: 0 0 0.9rem;
+        font-size: 1.3rem;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+
+      .install { display: flex; flex-wrap: wrap; gap: 0.55rem; }
 
       .install a {
-        flex: 1 1 10rem;
-        padding: 0.7rem 1rem;
+        padding: 0.6rem 1.1rem;
         border: 1px solid var(--line);
-        border-radius: 10px;
+        border-radius: 999px;
         background: var(--panel);
-        color: var(--text);
-        text-align: center;
+        color: var(--tint);
         text-decoration: none;
         font-weight: 600;
+        font-size: 0.95rem;
       }
 
       .install a:hover { border-color: var(--tint); }
 
-      code, .url {
-        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-        font-size: 0.9rem;
-      }
+      .hint { margin: 0.7rem 0 0; font-size: 0.85rem; color: var(--muted); }
 
       .url {
-        display: block;
-        padding: 0.75rem 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        margin-top: 2.25rem;
+        padding: 0.7rem 0.7rem 0.7rem 1rem;
         border: 1px solid var(--line);
-        border-radius: 10px;
+        border-radius: 12px;
         background: var(--panel);
+      }
+
+      .url code {
+        flex: 1 1 auto;
+        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+        font-size: 0.88rem;
         overflow-wrap: anywhere;
       }
 
+      .url button {
+        flex: 0 0 auto;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 2.75rem;
+        min-width: 4.5rem;
+        padding: 0 0.9rem;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #1d232b;
+        color: var(--text);
+        font: inherit;
+        font-size: 0.85rem;
+        cursor: pointer;
+      }
+
+      .url button:hover { border-color: var(--tint); }
+
+      section { margin-top: 3rem; }
+      section.tight { margin-top: 2rem; }
+
+      .shots {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 0.75rem;
+      }
+
+      /* height:auto is load-bearing. The height attribute is a presentational
+         hint, so setting only the width leaves both dimensions specified and
+         the image renders at its full 2868px. */
+      .shots img {
+        width: 100%;
+        height: auto;
+        border-radius: 14px;
+        border: 1px solid var(--line);
+      }
+
+      .rows div {
+        display: flex;
+        justify-content: space-between;
+        gap: 1rem;
+        padding: 0.72rem 0;
+        border-top: 1px solid var(--line);
+      }
+
+      .rows div:first-child { border-top: 0; }
+      .rows dt { color: var(--text); }
+      .rows dd { margin: 0; color: var(--muted); text-align: right; overflow-wrap: anywhere; }
+
       p { color: var(--muted); }
       strong { color: var(--text); font-weight: 600; }
-
       ul { margin: 0; padding-left: 1.2rem; color: var(--muted); }
-      li { margin: 0.35rem 0; }
-
+      li { margin: 0.4rem 0; }
       a { color: var(--tint); }
 
       footer {
-        margin-top: 3rem;
+        margin-top: 3.5rem;
         padding-top: 1.5rem;
         border-top: 1px solid var(--line);
         color: var(--muted);
         font-size: 0.9rem;
       }
+
+      @media (max-width: 32rem) {
+        .app { padding-top: 5rem; gap: 0.9rem; }
+        .app img { width: 88px; height: 88px; border-radius: 20px; }
+        h1 { font-size: 1.5rem; }
+        .hero { height: 17rem; }
+
+        /* All three fit one row at 375px, but only just. */
+        .install { gap: 0.4rem; }
+        .install a { padding: 0.55rem 0.8rem; font-size: 0.88rem; }
+
+        .shots {
+          grid-auto-flow: column;
+          grid-template-columns: none;
+          grid-auto-columns: 62%;
+          overflow-x: auto;
+          scroll-snap-type: x mandatory;
+          margin-inline: -1.25rem;
+          padding: 0 1.25rem 0.5rem;
+        }
+
+        .shots img { scroll-snap-align: start; }
+
+        /* Full width, or the URL breaks in the middle of a word. */
+        .url { flex-direction: column; align-items: stretch; gap: 0.6rem; padding: 0.9rem; }
+        .url button { align-self: flex-start; }
+      }
     </style>
   </head>
   <body>
+    <div class="hero" aria-hidden="true"></div>
+
     <main>
-      <header>
-        <img src="/assets/icon.png" alt="">
+      <header class="app">
+        <img src="/assets/icon.png?v=d83ffc2a" alt="">
         <div>
           <h1>ARMSX2 iOS</h1>
-          <p class="tagline">PlayStation 2 games on iPhone and iPad. Needs JIT.</p>
+          <p class="subtitle">PlayStation 2 games on iPhone and iPad. Needs JIT.</p>
         </div>
       </header>
 
-      <h2>Add the source</h2>
       <div class="install">
         <a href="livecontainer://source?url=https%3A%2F%2Fios.armsx2.net%2Fapps.json">LiveContainer</a>
         <a href="sidestore://source?url=https%3A%2F%2Fios.armsx2.net%2Fapps.json">SideStore</a>
         <a href="feather://source/https%3A%2F%2Fios.armsx2.net%2Fapps.json">Feather</a>
       </div>
+      <p class="hint">Those only do anything on the device with the app installed.</p>
 
-      <h2>Or add it by hand</h2>
-      <span class="url">https://ios.armsx2.net/apps.json</span>
+      <div class="url">
+        <code id="source-url">https://ios.armsx2.net/apps.json</code>
+        <button id="copy" type="button" hidden>Copy</button>
+      </div>
 
-      <h2>Two channels, one source</h2>
-      <p>
-        The source carries two channels. <strong>ARMSX2 iOS</strong> is the stable release.
-        <strong>ARMSX2 Nightly</strong> is the latest code, built automatically most days, so
-        new features land there first. It sees less testing than a release, so expect the odd
-        bug. They install as separate apps and keep separate save states, memory cards and
-        settings, so a nightly cannot disturb a working stable install.
-      </p>
+      <section>
+        <h2>Screenshots</h2>
+        <div class="shots">
+          <img src="/assets/screenshots/01-library.jpg?v=4e846c3a" width="1320" height="2868" alt="The game library, showing box art for each disc image">
+          <img src="/assets/screenshots/02-controller-skin.jpg?v=8694a8e4" width="1320" height="2868" alt="A game running with an imported controller skin">
+          <img src="/assets/screenshots/03-pause-menu.jpg?v=2720efae" width="1320" height="2868" alt="The pause menu, with per-game settings and controller skin">
+          <img src="/assets/screenshots/04-appearance.jpg?v=4292fef1" width="1320" height="2868" alt="Appearance settings, with separate portrait and landscape backgrounds">
+        </div>
+      </section>
 
-      <h2>Before you start</h2>
-      <ul>
-        <li>iPhone or iPad on iOS 17 or later, and a JIT-capable setup. Without JIT most games are too slow to play.</li>
-        <li>You provide your own PS2 BIOS and your own game files. Neither ships here.</li>
-        <li>How well a game runs depends on your device, your iOS version and the game. Some are perfect, some are slow, some do not boot.</li>
-      </ul>
+      <section>
+        <h2>Two channels, one source</h2>
+        <p>
+          <strong>ARMSX2 iOS</strong> is the stable release. <strong>ARMSX2 Nightly</strong> is
+          the latest code, built automatically most days, so new features land there first. It
+          sees less testing than a release, so expect the odd bug. They install as separate apps
+          and keep separate save states, memory cards and settings, so a nightly cannot disturb
+          a working stable install.
+        </p>
+      </section>
 
-      <h2>More</h2>
-      <ul>
-        <li><a href="https://armsx2.net">armsx2.net</a> — builds for other platforms, docs and the FAQ</li>
-        <li><a href="https://armsx2.net/compatibility">Compatibility list</a> — worth checking a game before you start</li>
-        <li><a href="https://discord.gg/S7VxwfS8w9">Discord</a> — where to ask when something breaks</li>
-        <li><a href="https://github.com/ARMSX2/ARMSX2">Source code</a> — ARMSX2 is GPL-3.0</li>
-        <li>Support development on <a href="https://www.patreon.com/cw/ARMSX2">Patreon</a> or <a href="https://ko-fi.com/armsx2">Ko-fi</a></li>
-      </ul>
+      <section id="information" hidden>
+        <h2>Information</h2>
+        <dl class="rows" id="rows"></dl>
+      </section>
+
+      <section>
+        <h2>Before you start</h2>
+        <ul>
+          <li>iPhone or iPad on iOS 17 or later, and a JIT-capable setup. Without JIT most games are too slow to play.</li>
+          <li>You provide your own PS2 BIOS and your own game files. Neither ships here.</li>
+          <li>How well a game runs depends on your device, your iOS version and the game. Some are perfect, some are slow, some do not boot.</li>
+        </ul>
+      </section>
+
+      <section class="tight">
+        <h2>Links</h2>
+        <p>
+          <a href="https://armsx2.net">armsx2.net</a> has builds for other platforms, the docs
+          and the FAQ. Worth checking the
+          <a href="https://armsx2.net/compatibility">compatibility list</a> before you start a
+          game, and the <a href="https://discord.gg/S7VxwfS8w9">Discord</a> is where to ask when
+          something breaks.
+        </p>
+        <p>
+          ARMSX2 is GPL-3.0 and the <a href="https://github.com/ARMSX2/ARMSX2">source is on
+          GitHub</a>. You can support development on
+          <a href="https://www.patreon.com/cw/ARMSX2">Patreon</a> or
+          <a href="https://ko-fi.com/armsx2">Ko-fi</a>.
+        </p>
+      </section>
 
       <footer>
         <p>
@@ -141,5 +307,68 @@
         </p>
       </footer>
     </main>
+
+    <script>
+      const copyButton = document.getElementById("copy");
+      const sourceUrl = document.getElementById("source-url").textContent;
+
+      if (navigator.clipboard) {
+        copyButton.hidden = false;
+        copyButton.addEventListener("click", async () => {
+          try {
+            await navigator.clipboard.writeText(sourceUrl);
+            copyButton.textContent = "Copied";
+            setTimeout(() => { copyButton.textContent = "Copy"; }, 1600);
+          } catch {
+            copyButton.textContent = "Press to select";
+          }
+        });
+      }
+
+      const megabytes = (bytes) => `${(bytes / 1048576).toFixed(1)} MB`;
+
+      const shownDate = (value) => new Date(value).toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+
+      // The page reads the document it is advertising, so it cannot claim a
+      // version the source is not actually serving.
+      fetch("/apps.json")
+        .then((response) => (response.ok ? response.json() : Promise.reject(response.status)))
+        .then((source) => {
+          const stable = source.apps.find((app) => !app.bundleIdentifier.endsWith(".nightly"));
+          const nightly = source.apps.find((app) => app.bundleIdentifier.endsWith(".nightly"));
+
+          if (!stable) {
+            return;
+          }
+
+          const rows = [
+            ["Version", stable.versions[0].version],
+            ["Size", megabytes(stable.size)],
+            ["Updated", shownDate(stable.versions[0].date)],
+            ["Identifier", stable.bundleIdentifier],
+          ];
+
+          if (nightly) {
+            rows.splice(1, 0, ["Nightly", nightly.versions[0].version]);
+          }
+
+          document.getElementById("rows").append(...rows.map(([label, value]) => {
+            const row = document.createElement("div");
+            const term = document.createElement("dt");
+            const description = document.createElement("dd");
+            term.textContent = label;
+            description.textContent = value;
+            row.append(term, description);
+            return row;
+          }));
+
+          document.getElementById("information").hidden = false;
+        })
+        .catch(() => {});
+    </script>
   </body>
 </html>
