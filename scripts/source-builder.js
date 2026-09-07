@@ -16,6 +16,7 @@ import {
 import { compareIpaManifests, ipaFileManifest, sourceAppPermissions } from "./ipa-metadata.js";
 import { sourceNews } from "./source-news.js";
 import {
+  assetFingerprints,
   compactObject,
   jsonBuffer,
   optionalJsonDocument,
@@ -138,15 +139,16 @@ const stableChannelApp = (metadataPayload) => ({
   category: metadataPayload.app.category,
 });
 
-const sourceApp = (channel, ipaFileManifests, generatorOptions, screenshotFiles) =>
+const sourceApp = (channel, ipaFileManifests, generatorOptions, screenshotFiles, fingerprints) =>
   compactObject({
     name: channel.name,
     bundleIdentifier: channel.bundleIdentifier,
     developerName: "ARMSX2",
     subtitle: channel.subtitle,
     localizedDescription: channel.localizedDescription,
-    iconURL: publicAssetUrl(generatorOptions.baseUrl, channel.iconFile),
-    screenshotURLs: screenshotFiles.map((screenshotFile) => publicAssetUrl(generatorOptions.baseUrl, screenshotFile)),
+    iconURL: publicAssetUrl(generatorOptions.baseUrl, channel.iconFile, fingerprints.get(channel.iconFile)),
+    screenshotURLs: screenshotFiles.map((screenshotFile) =>
+      publicAssetUrl(generatorOptions.baseUrl, screenshotFile, fingerprints.get(screenshotFile))),
     tintColor: channel.tintColor,
     category: channel.category,
     size: ipaFileManifests[0]?.size,
@@ -155,19 +157,19 @@ const sourceApp = (channel, ipaFileManifests, generatorOptions, screenshotFiles)
     appPermissions: sourceAppPermissions(channel.permissions ?? []),
   });
 
-const sourcePayload = (channelBuilds, generatorOptions, screenshotFiles, metadataPayload, news) =>
+const sourcePayload = (channelBuilds, generatorOptions, screenshotFiles, metadataPayload, news, fingerprints) =>
   compactObject({
     name: "ARMSX2 iOS",
     identifier: sourceIdentifier,
     sourceURL: publicAssetUrl(generatorOptions.baseUrl, "apps.json"),
     subtitle: metadataPayload.source.subtitle,
     description: metadataPayload.source.description,
-    iconURL: publicAssetUrl(generatorOptions.baseUrl, stableIconFile),
+    iconURL: publicAssetUrl(generatorOptions.baseUrl, stableIconFile, fingerprints.get(stableIconFile)),
     website: metadataPayload.source.website,
     patreonURL: metadataPayload.source.patreonURL,
     tintColor: metadataPayload.source.tintColor,
     apps: channelBuilds.map(({ channel, manifests }) =>
-      sourceApp(channel, manifests, generatorOptions, screenshotFiles)),
+      sourceApp(channel, manifests, generatorOptions, screenshotFiles, fingerprints)),
     news: news.length ? news : undefined,
   });
 
@@ -227,13 +229,14 @@ export const generatedBuffers = async (generatorOptions) => {
     manifests: ipaFileManifests,
   };
   const channelBuilds = [stableBuild, nightlyChannelBuild(ledger, generatorOptions)].filter(Boolean);
+  const fingerprints = await assetFingerprints([stableIconFile, nightlyIconFile, ...screenshotFiles]);
   const news = sourceNews(githubReleases, ledger, metadataPayload, existingSource.news ?? [], {
-    stable: publicAssetUrl(generatorOptions.baseUrl, stableIconFile),
-    nightly: publicAssetUrl(generatorOptions.baseUrl, nightlyIconFile),
+    stable: publicAssetUrl(generatorOptions.baseUrl, stableIconFile, fingerprints.get(stableIconFile)),
+    nightly: publicAssetUrl(generatorOptions.baseUrl, nightlyIconFile, fingerprints.get(nightlyIconFile)),
   });
 
   return {
-    source: jsonBuffer(sourcePayload(channelBuilds, generatorOptions, screenshotFiles, metadataPayload, news)),
+    source: jsonBuffer(sourcePayload(channelBuilds, generatorOptions, screenshotFiles, metadataPayload, news, fingerprints)),
     checksums: jsonBuffer(checksumPayload(channelBuilds, generatorOptions)),
     screenshotFiles,
     ipaCount: channelBuilds.reduce((total, { manifests }) => total + manifests.length, 0),

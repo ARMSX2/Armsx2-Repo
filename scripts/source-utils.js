@@ -1,5 +1,6 @@
+import { createHash } from "node:crypto";
 import { readdir, readFile } from "node:fs/promises";
-import { relative, sep } from "node:path";
+import { relative, resolve, sep } from "node:path";
 
 import { repositoryRoot } from "./constants.js";
 
@@ -13,14 +14,31 @@ export const normalizedPublicBaseUrl = (baseUrl) => {
   return publicBaseUrl.href;
 };
 
-export const publicAssetUrl = (baseUrl, publicRelativePath) => {
+export const publicAssetUrl = (baseUrl, publicRelativePath, fingerprint) => {
   const encodedPathSegments = publicRelativePath
     .split(/[\\/]/u)
     .filter(Boolean)
     .map(encodeURIComponent)
     .join("/");
 
-  return new URL(encodedPathSegments, normalizedPublicBaseUrl(baseUrl)).href;
+  const assetUrl = new URL(encodedPathSegments, normalizedPublicBaseUrl(baseUrl));
+
+  if (fingerprint) {
+    assetUrl.search = `v=${fingerprint}`;
+  }
+
+  return assetUrl.href;
+};
+
+// Images keep their filename across releases, and the edge caches them for years.
+// A fingerprint in the query makes a changed file a different URL.
+export const assetFingerprints = async (relativePaths) => {
+  const entries = await Promise.all([...new Set(relativePaths)].map(async (assetPath) => [
+    assetPath,
+    createHash("sha256").update(await readFile(resolve(repositoryRoot, assetPath))).digest("hex").slice(0, 8),
+  ]));
+
+  return new Map(entries);
 };
 
 export const compactObject = (record) =>

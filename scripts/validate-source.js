@@ -22,7 +22,7 @@ import {
 import { ipaFileManifest } from "./ipa-metadata.js";
 import { legacyReferenceErrors } from "./legacy-references.js";
 import { nightlyVersion } from "./nightly-ipa.js";
-import { optionalJsonDocument, repositoryPath } from "./source-utils.js";
+import { assetFingerprints, optionalJsonDocument, repositoryPath } from "./source-utils.js";
 
 const execFileAsync = promisify(execFile);
 const schemaPath = resolve(repositoryRoot, "scripts/source-schema.json");
@@ -632,6 +632,27 @@ const validateOfflineFallback = async (validationOptions) => {
   }
 };
 
+// index.html spells its asset fingerprints out by hand. Left unchecked they go
+// stale on the next icon change, and the page serves the cached old one while
+// the listing serves the new one.
+const validatePageFingerprints = async (pagePath) => {
+  const pageHtml = await readFile(resolve(repositoryRoot, pagePath), "utf8").catch(() => null);
+
+  if (pageHtml === null) {
+    return [];
+  }
+
+  const references = [...pageHtml.matchAll(/["'(](?:\/)?(assets\/[^"'()?]+)\?v=([0-9a-f]{8})/gu)]
+    .map(([, assetPath, fingerprint]) => ({ assetPath, fingerprint }));
+
+  const current = await assetFingerprints(references.map(({ assetPath }) => assetPath));
+
+  return references
+    .filter(({ assetPath, fingerprint }) => current.get(assetPath) !== fingerprint)
+    .map(({ assetPath, fingerprint }) =>
+      `${pagePath} references ${assetPath}?v=${fingerprint}; the file is ${current.get(assetPath)}.`);
+};
+
 const runValidation = async () => {
   const validationOptions = parseArguments(process.argv.slice(2));
   const sourceJson = await jsonDocument(resolve(repositoryRoot, validationOptions.sourcePath));
@@ -644,6 +665,7 @@ const runValidation = async () => {
     ...await validateLocalAssets(sourceJson),
     ...await validateLocalIpas(sourceJson, checksumJson, validationOptions),
     ...(validationOptions.offlineFallback ? await validateOfflineFallback(validationOptions) : []),
+    ...await validatePageFingerprints("index.html"),
     ...(validationOptions.legacyPurge ? await legacyReferenceErrors() : []),
   ];
 

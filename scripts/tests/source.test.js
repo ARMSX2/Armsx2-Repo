@@ -1,8 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { createHash } from "node:crypto";
+import { readFile } from "node:fs/promises";
+import { resolve } from "node:path";
+
+import { repositoryRoot } from "../constants.js";
 
 import { markdownToStoreText, storeTextBudget } from "../github-releases.js";
-import { publicAssetUrl } from "../source-utils.js";
+import { assetFingerprints, publicAssetUrl } from "../source-utils.js";
 
 // Sized from the budget, so moving the budget does not quietly stop these
 // from testing the boundary they are about.
@@ -101,4 +106,23 @@ test("publicAssetUrl keeps the base path and encodes each segment", () => {
     publicAssetUrl("https://example.invalid/nested", "assets/one two.png"),
     "https://example.invalid/nested/assets/one%20two.png",
   );
+});
+
+test("publicAssetUrl carries a fingerprint only when it is given one", () => {
+  assert.equal(
+    publicAssetUrl("https://ios.armsx2.net", "assets/icon.png", "d83ffc2a"),
+    "https://ios.armsx2.net/assets/icon.png?v=d83ffc2a",
+  );
+  assert.equal(
+    publicAssetUrl("https://ios.armsx2.net", "assets/icon.png"),
+    "https://ios.armsx2.net/assets/icon.png",
+  );
+});
+
+test("assetFingerprints follows the file contents, not the name", async () => {
+  const fingerprints = await assetFingerprints(["assets/icon.png", "assets/icon-nightly.png"]);
+  const iconDigest = createHash("sha256").update(await readFile(resolve(repositoryRoot, "assets/icon.png"))).digest("hex");
+
+  assert.equal(fingerprints.get("assets/icon.png"), iconDigest.slice(0, 8));
+  assert.notEqual(fingerprints.get("assets/icon.png"), fingerprints.get("assets/icon-nightly.png"));
 });
