@@ -17,20 +17,5 @@
       "usageDescription": "ARMSX2 uses device motion to control the emulated right analog stick when Gyroscope Camera is enabled."
     }
   ],
-  "builds": [
-    {
-      "fileName": "ARMSX2-Nightly-20260907-b69fbed079.ipa",
-      "version": "2.5.3-nightly.20260907.1443",
-      "buildVersion": "253",
-      "upstreamVersion": "2.5.3",
-      "tag": "nightly-20260907",
-      "commit": "b69fbed079",
-      "date": "2026-09-07",
-      "publishedAt": "2026-09-07T14:43:45Z",
-      "size": 26817536,
-      "sha256": "31a795ce10d172f6439c677f353196fe50cf633c3cff16b6f31731e0cc69ab51",
-      "minOSVersion": "17.0",
-      "localizedDescription": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260907\n\n- GameDB: fix Jak X softlocking on \"Saving Data\" after a profile save\n- iOS: a texture handed to PresentRect owes us its clear already flushed\n- iOS: the boot window was presenting a texture nothing ever wrote"
-    }
-  ]
+  "builds": []
 }

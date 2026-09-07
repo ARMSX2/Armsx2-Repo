@@ -111,9 +111,9 @@ jobs:
           git commit --amend --no-edit
           git push origin "HEAD:${{ github.ref_name }}"
 
-      # Driven by the live document, not by this run: a build is only removed
-      # once the source that stopped naming it is actually being served. Until
-      # the deploy lands, this is a no-op and the next run cleans up.
+      # A build is removed only when neither the ledger nor the live document
+      # names it. The deploy that publishes this run's build has not happened
+      # yet, so the live document alone would mark it retired and delete it.
       - name: Prune retired nightlies
         if: steps.mirror.outputs.changed == 'true'
         env:
@@ -133,3 +133,18 @@ jobs:
           tr '\n' '\0' < retired-nightlies.txt \
             | sshpass -e ssh $SSH_OPTIONS "armsx2-ios@${SERVER_HOST}" \
               "cd '${DEPLOY_ROOT}/ipas/nightly' && xargs -0 -r rm -f --"
+
+      # The upload and the prune both touch the same directory in one run, so
+      # check the file is still there before calling the mirror a success.
+      - name: Confirm the nightly survived the prune
+        if: steps.mirror.outputs.changed == 'true'
+        env:
+          SSHPASS: ${{ secrets.SERVER_PASSWORD }}
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          FILE_NAME: ${{ steps.mirror.outputs.file_name }}
+        run: |
+          if ! sshpass -e ssh $SSH_OPTIONS "armsx2-ios@${SERVER_HOST}" \
+            "test -f '${DEPLOY_ROOT}/ipas/nightly/${FILE_NAME}'"; then
+            echo "::error::${FILE_NAME} was uploaded but is not on the server."
+            exit 1
+          fi
