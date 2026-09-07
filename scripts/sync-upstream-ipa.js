@@ -5,7 +5,6 @@ import {
   copyFile,
   mkdir,
   mkdtemp,
-  readFile,
   rm,
   stat,
   writeFile,
@@ -21,6 +20,7 @@ import { downloadAssetToFile, githubReleases, writeGithubOutput } from "./github
 import { isNightlyRelease } from "./nightly-releases.js";
 import { ipaFileManifest } from "./ipa-metadata.js";
 import { findIpaFiles } from "./source-builder.js";
+import { optionalJsonDocument } from "./source-utils.js";
 
 const execFileAsync = promisify(execFile);
 const generatorPath = resolve(repositoryRoot, "scripts/generate-source.js");
@@ -49,21 +49,9 @@ const parseArguments = (cliArguments) => parseOptions(
   (message) => new UpstreamSyncError(message),
 );
 
-const jsonDocument = async (jsonPath, fallbackPayload = {}) => {
-  try {
-    return JSON.parse(await readFile(jsonPath, "utf8"));
-  } catch (filesystemError) {
-    if (filesystemError?.code === "ENOENT") {
-      return fallbackPayload;
-    }
-
-    throw filesystemError;
-  }
-};
-
 const releaseRepository = async (syncOptions) => {
   const metadataPath = resolve(repositoryRoot, syncOptions.metadataPath);
-  const metadataPayload = await jsonDocument(metadataPath);
+  const metadataPayload = await optionalJsonDocument(metadataPath);
   const repositoryName = syncOptions.upstreamReleaseRepo
     ?? metadataPayload.releaseNotes?.upstreamRepository;
 
@@ -110,9 +98,8 @@ const candidateScore = (candidate) => {
   return score;
 };
 
-// The nightly channel has its own pipeline. Skipping the tags outright means
-// the two can never pick up each other's builds, whatever include_prereleases
-// is set to.
+// Nightly has its own pipeline. Skipping the tags here means neither channel
+// can pick up the other's builds, whatever include_prereleases says.
 const releaseCandidates = (releases, syncOptions) =>
   releases
     .filter((githubRelease) => !githubRelease.draft)
@@ -168,12 +155,11 @@ const publishedFileExists = async (syncOptions, fileName) => {
   }
 };
 
-// A matching hash only means "already published" when the file it names is
-// still on disk. Otherwise the sync would short-circuit and leave apps.json
-// pointing at an IPA nobody can build.
+// A matching hash only counts while the file is still on disk, or the sync
+// short-circuits and leaves apps.json pointing at nothing.
 const checksumExists = async (syncOptions, ipaSha256) => {
   const checksumPath = resolve(repositoryRoot, syncOptions.checksumsPath);
-  const checksumPayload = await jsonDocument(checksumPath, { files: [] });
+  const checksumPayload = await optionalJsonDocument(checksumPath, { files: [] });
   const matchingEntry = (checksumPayload.files ?? []).find((fileEntry) => fileEntry.sha256 === ipaSha256);
 
   return Boolean(matchingEntry) && await publishedFileExists(syncOptions, matchingEntry.fileName);
@@ -250,9 +236,8 @@ const validateCandidate = async (temporaryDirectory, candidateIpaDirectory, sync
   ]);
 };
 
-// Copy first, prune second. Removing the directory up front left ipas/ empty
-// whenever the copy that followed failed, and the next generate would then
-// publish a source with no versions at all.
+// Copy first, prune second. Clearing the directory up front left ipas/ empty
+// when the copy then failed, and the next generate published no versions.
 const replacePublishedIpas = async (candidateIpaPath, syncOptions) => {
   const outputDirectory = resolve(repositoryRoot, syncOptions.outputDirectory);
   const outputIpaPath = join(outputDirectory, basename(candidateIpaPath));

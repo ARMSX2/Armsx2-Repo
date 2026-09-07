@@ -2,25 +2,39 @@
   "name": "ARMSX2 iOS",
   "identifier": "com.j1coding.armsx2.ios",
   "sourceURL": "https://ios.armsx2.net/apps.json",
+  "subtitle": "PlayStation 2 emulation for iPhone and iPad.",
+  "description": "The iOS source for ARMSX2, the ARM64 PlayStation 2 emulator. Stable releases, plus a nightly channel for anyone who wants to test the latest code.",
+  "iconURL": "https://ios.armsx2.net/assets/icon.png",
+  "website": "https://armsx2.net",
+  "patreonURL": "https://www.patreon.com/cw/ARMSX2",
+  "tintColor": "#1A7BB7",
   "apps": [
     {
       "name": "ARMSX2 iOS",
       "bundleIdentifier": "com.armsx2.ios",
       "developerName": "ARMSX2",
-      "subtitle": "Modern PlayStation 2 emulation for iOS.",
-      "localizedDescription": "ARMSX2 brings PlayStation 2 emulation to iOS devices. Based on the open-source PCSX2 project, this ARM64-focused iOS build helps you revisit and preserve your own legally obtained PS2 game library on modern mobile hardware.\n\nFeatures:\n- Customizable touchscreen controls and external controller support\n- Graphics settings, performance options, save states, and memory card support\n- Local-network support for compatible online titles\n\nImportant iOS requirements:\nA JIT-capable setup is required for playable performance. Compatibility varies by device, iOS version, game, and sideloading environment, including LiveContainer, SideStore, or Feather.\n\nDisclaimer:\nARMSX2 does not include games or BIOS files. Users must provide their own legally obtained BIOS and game backups, such as ISO files. ARMSX2 is not affiliated with Sony Interactive Entertainment or PlayStation.\n\nCredits:\nThe upstream ARMSX2 project was founded by jpolo1224 and MoonPower, with work from contributors including Zeruth and Dib1998.",
+      "subtitle": "PlayStation 2 games on iPhone and iPad. Needs JIT.",
+      "localizedDescription": "Play your PS2 games on iPhone and iPad.\nYou need your own PS2 BIOS and game files, and JIT for full speed. None of it is included.\n\nARMSX2 is a native ARM64 build of PCSX2. The recompilers run on your device instead of translating x86 code, which is what makes PS2 emulation workable on a phone. They are the shared ARM64 recompilers, checked by comparing what they execute against other emulators, and they apply the game database's own patches as a game runs.\n\nWhat you get\n- On-screen controls you can move and resize, with separate portrait and landscape layouts\n- Controller skins, browsed and installed inside the app with a preview and the author on every row, or brought in yourself as .armsx2skin, Delta or ManicEMU. Each game can keep its own\n- Per-game settings, so a fix for one game does not follow you into the next\n- RetroAchievements, with your account, your progress and the achievement list in the app, and unlocks arriving as ordinary iOS notifications. Hardcore Mode still allows trusted widescreen and 60 FPS patches, and still blocks cheats\n- Save states and virtual memory cards\n- Save states from AetherSX2 and NetherSX2 builds load directly, once you copy them in through Files\n- A frame rate cap that limits presentation only, to cut heat and battery drain\n- An on-screen performance overlay\n- External controllers, plus adjustable phone haptics\n- Live backgrounds behind the menus: twelve built in, including a PS2 menu and an XMB recreation, or your own image or video, set separately for portrait and landscape\n- Ten alternate app icons\n\nRequirements\niPhone or iPad on iOS 17 or later. JIT is what gets you full speed. Without it ARMSX2 falls back to an interpreter rather than refusing to start, flags it with a No JIT badge while you play, and most games are too slow to enjoy. Disc images open straight from Files: .iso, .bin, .img, .chd and .rom.\n\nHow well a game runs depends on your device, your iOS version and the game itself. Some are perfect, some are slow, some do not boot. Check the compatibility list before you start.\n\nLinks\nWebsite: https://armsx2.net\nCompatibility: https://armsx2.net/compatibility\nDocs and FAQ: https://armsx2.net/docs\nDiscord: https://discord.gg/S7VxwfS8w9\nSource code: https://github.com/ARMSX2/ARMSX2\n\nSupport development\nPatreon: https://www.patreon.com/cw/ARMSX2\nKo-fi: https://ko-fi.com/armsx2\n\nCredits\nARMSX2 is open source under GPL-3.0 and builds on PCSX2. Started by MoonPower with support from jpolo1224, forked from PCSX2_ARM64 by Pontos.\n\nApp icon by fffathur, logo by Vivimagic. The icon artwork is MIT licensed: https://github.com/ARMSX2/Save-Tower\n\nARMSX2 does not include games or BIOS files. Donations are voluntary and the project seeks no commercial return. It is not officially associated with PCSX2 or with any other fork of it, and not affiliated with Sony Interactive Entertainment, PlayStation, or ARM Holdings.",
       "iconURL": "https://ios.armsx2.net/assets/icon.png",
       "screenshotURLs": [
-        "https://ios.armsx2.net/assets/screenshots/01-library.png",
-        "https://ios.armsx2.net/assets/screenshots/02-settings.png",
-        "https://ios.armsx2.net/assets/screenshots/03-gameplay.png"
+        "https://ios.armsx2.net/assets/screenshots/01-library.jpg",
+        "https://ios.armsx2.net/assets/screenshots/02-gameplay.jpg",
+        "https://ios.armsx2.net/assets/screenshots/03-gameplay-2d.jpg",
+        "https://ios.armsx2.net/assets/screenshots/04-controller-skin.jpg",
+        "https://ios.armsx2.net/assets/screenshots/05-controller-layout.jpg",
+        "https://ios.armsx2.net/assets/screenshots/06-pause-menu.jpg",
+        "https://ios.armsx2.net/assets/screenshots/07-appearance.jpg"
       ],
-      "tintColor": "#2F6FAD",
+      "tintColor": "#1A7BB7",
+      "category": "games",
+      "size": 26425138,
       "versions": [
         {
           "version": "2.5.2",
+          "buildVersion": "252",
+          "buildNumber": "252",
           "date": "2026-08-06",
-          "localizedDescription": "Updated to ARMSX2 iOS 2.5.2.\n\nFrame rate cap\n\n@Henyckma added an FPS cap that limits presentation only. The game and the audio keep running at full speed, so it costs nothing in emulation and gives back battery and heat instead. Targets are 15, 23.976, 29.94, 30, 45, 59.97, 60, 90 and 120, set globally or per game. The gain is biggest at 2x and 3x internal resolution, where the passes it skips cover the most pixels. Selecting 30 FPS used to halve emulation and audio speed, which is fixed, and FPS profiles from earlier builds carry over without losing the cadence you picked.\n\nCrashes and freezes\n\nFixed a crash in games like Namco Museum 50th Anniversary, which turned out to be an out of bounds write in the virtual memory page protection table. Fixed a freeze in readback heavy scenes with Hardware Download Mode set to Unsynchronized. Rogue Galaxy no longer stalls the graphics thread around 7.5 ms every frame on a depth probe readback, about a fifth of the frame on an M2. The last two are bmdhacks. Saving per game settings could also leave the game frozen a second or two later, which is covered below.\n\nSprite hacks\n\nAlign Sprite and Merge Sprite apply when you switch them off. This was the third report of that bug and the fifth attempt at it, and the earlier ones all fixed the global screen while leaving everything around it alone. Per game, those rows greyed out whenever GameDB Graphics Fixes was on, kept showing their old value, and got written back on every save. Align Sprite, Merge Sprite and Wild Arms Offset are one Use Global / Off / On picker each now, and they no longer need manual hacks mode. Setting one claims that fix, so the game database stops overriding it while keeping every other fix for the game. Texture Inside RT, Native Scaling, Bilinear Upscale, Unscaled Palette Draw, Preload Frame Data and Disable Partial Invalidation had the same bug and were fixed with it. None of these do anything at 1x internal resolution, which is by design.\n\n…",
+          "localizedDescription": "https://github.com/ARMSX2/ARMSX2/releases/tag/iOSv2.5.2\n\nFrame rate cap\n\n@Henyckma added an FPS cap that limits presentation only. The game and the audio keep running at full speed, so it costs nothing in emulation and gives back battery and heat instead. Targets are 15, 23.976, 29.94, 30, 45, 59.97, 60, 90 and 120, set globally or per game. The gain is biggest at 2x and 3x internal resolution, where the passes it skips cover the most pixels. Selecting 30 FPS used to halve emulation and audio speed, which is fixed, and FPS profiles from earlier builds carry over without losing the cadence you picked.\n\nCrashes and freezes\n\nFixed a crash in games like Namco Museum 50th Anniversary, which turned out to be an out of bounds write in the virtual memory page protection table. Fixed a freeze in readback heavy scenes with Hardware Download Mode set to Unsynchronized. Rogue Galaxy no longer stalls the graphics thread around 7.5 ms every frame on a depth probe readback, about a fifth of the frame on an M2. The last two are bmdhacks. Saving per game settings could also leave the game frozen a second or two later, which is covered below.\n\nSprite hacks\n\nAlign Sprite and Merge Sprite apply when you switch them off. This was the third report of that bug and the fifth attempt at it, and the earlier ones all fixed the global screen while leaving everything around it alone. Per game, those rows greyed out whenever GameDB Graphics Fixes was on, kept showing their old value, and got written back on every save. Align Sprite, Merge Sprite and Wild Arms Offset are one Use Global / Off / On picker each now, and they no longer need manual hacks mode. Setting one claims that fix, so the game database stops overriding it while keeping every other fix for the game. Texture Inside RT, Native Scaling, Bilinear Upscale, Unscaled Palette Draw, Preload Frame Data and Disable Partial Invalidation had the same bug and were fixed with it. None of these do anything at 1x internal resolution, which is by design.\n\nPer-game settings\n\nTurning on Use Per-Game Overrides used to soften text and edges: enabling it copied six graphics keys into the per game file, and one of those forced a blend deinterlace that also suppressed the game's own database fix. Only the settings you change are written now. Saving in that panel could also leave the game frozen a second or two later while the emulator carried on at full speed, because metadata scans share one disc image with the running game and a scan during play left it holding a closed disc.\n\nThe Renderer picker never saved a change made while a game was running, so it never applied either. It saves now, and it moved from Fixes & Compatibility to the Graphics tab where people kept looking for it. It still applies at the next boot of that game. Saving the panel is quicker too: it used to fire one full settings reload per field written, 71 of them for a single Save.\n\nSettings\n\nEvery slider, stepper and typed number is one control now, and each setting is described once instead of once per screen. The FPS target had three different sets of bounds across three screens. Sliders stop on values people actually pick, every stop list holds the default so reset lands on one, and typing still reaches anything in between. Per game numbers can inherit the global value instead of choosing from a short list. The dynamic background sliders stay continuous, since every value there is a legitimate one, but they snap to the precision they print: a row could read 50% while storing 0.4973, which also left the reset arrow comparing against the hidden value.\n\nApplying the Default preset asks first and then resets every setting, with the Default row showing as active afterwards, and Reset Graphics and Reset Emulator no longer reach into settings they do not show or drag Frame Pacing to Custom on the way. Buffer Size and Output Latency are sliders on Frame Pacing now, matching the Audio screen, and GS Back Thread says it needs a restart instead of looking broken. The preset fixes are @Henyckma's.\n\nRumble\n\nPhone Rumble Strength runs on a scale that means something: off at 0%, the previous strength at 25%, and roughly three times that at 100%, with a separate Increase Duration of Rumble and Interpolation toggle that stretches how long an effect is felt without changing how strong it is. That changes what the stored value means, so existing settings are rescaled once on first launch rather than getting louder on update. Controller rumble is unchanged. Also @Henyckma.\n\nInterface\n\nThe interface is dark everywhere now, whatever the device is set to. The library, the BIOS list and the settings screens used to follow the system while gameplay and the pause menu were already dark. There is a new App Icon screen under Interface with ten alternate icons.\n\nHide Menu Button stays hidden until you bring it back, and the choice survives restarting the app. Any controller press used to restore the button and switch the setting off with it. Tapping the game area shows it for about four seconds instead.\n\nBooting without JIT shows a two stage warning now, and a red No JIT badge sits beside the Pause control while you play. Stop is on the Quick Menu and leaves the game straight away. The keyboard no longer flips the per game panel to the wrong layout, rotating no longer throws away unsaved edits, and Change Disc and Controller Skin line up with the rest of the pause menu. The no JIT warning and Quick Menu Stop are @Henyckma's.\n\nEmulation accuracy\n\n@bmdhacks and @pstef landed 26 EE and vector unit correctness fixes covering square root, min and max, the arctangent series, the multiplier's rounding and several flag paths. 23 of them cite hardware or console behaviour.\n\nSave states\n\nSave states written by AetherSX2 v1.5-era builds and NetherSX2 v2.1 load directly, and saving over one writes a current format state. Voice, streaming and DMA state come back with them, so audio carries on instead of resetting. Pad, USB and achievement blocks in those older states predate the format ARMSX2 reads today and get skipped, so controllers keep whatever type and mode they booted with. There is no import button yet. Copy the file into the sstates folder in the ARMSX2 documents directory using the Files app, named the way ARMSX2 names its own: SERIAL (CRC).01.p2s\n\nThanks\n\nThanks to @bmdhacks for the save state loading, the accuracy work, the GS fixes and the Rogue Galaxy tuning, to @henyckma for the frame rate cap, the haptics, Quick Menu Stop, the preset resets and the no JIT warning, and to pstef for the EE multiplier work. Thanks as well to the testers who tracked down the per game text softening, the Namco Museum crash, and three separate rounds of Align Sprite.\n\nFull commit list: https://github.com/ARMSX2/ARMSX2/compare/iOSv2.5.1...iOSv2.5.2",
           "downloadURL": "https://ios.armsx2.net/ipas/ARMSX2-iOS-2.5.2.ipa",
           "size": 26425138,
           "sha256": "0ee580a181560a4e266e19ad0c3eb9cac3ea5da79601f6cf727b1be1c33c63f4",
@@ -36,7 +50,81 @@
           "type": "motion",
           "usageDescription": "ARMSX2 uses device motion to control the emulated right analog stick when Gyroscope Camera is enabled."
         }
-      ]
+      ],
+      "appPermissions": {
+        "privacy": [
+          {
+            "name": "LocalNetwork",
+            "usageDescription": "ARMSX2 uses local network access for PS2 online play through DEV9 sockets."
+          },
+          {
+            "name": "Motion",
+            "usageDescription": "ARMSX2 uses device motion to control the emulated right analog stick when Gyroscope Camera is enabled."
+          }
+        ]
+      }
+    }
+  ],
+  "news": [
+    {
+      "title": "ARMSX2 iOS 2.3.1",
+      "identifier": "ios-2.3.1",
+      "caption": "From @J1coding Cheats & Patches manager: Each game now has its own manager for .pnach cheats and patches, available from the game long-press menu or the in-game quick menu. You can view named entries, enable/disable them per game, remove…",
+      "date": "2026-06-24T18:41:00Z",
+      "url": "https://github.com/ARMSX2/ARMSX2/releases/tag/iOSv2.3.1",
+      "appID": "com.armsx2.ios",
+      "tintColor": "#1A7BB7",
+      "notify": false
+    },
+    {
+      "title": "ARMSX2 iOS 2.4.0",
+      "identifier": "ios-2.4.0",
+      "caption": "ARMSX2 iOS 2.4.0 is a big update focused on making the app feel better while you are actually playing.",
+      "date": "2026-07-03T17:31:41Z",
+      "url": "https://github.com/ARMSX2/ARMSX2/releases/tag/iOSv2.4.0",
+      "appID": "com.armsx2.ios",
+      "tintColor": "#1A7BB7",
+      "notify": false
+    },
+    {
+      "title": "ARMSX2 iOS 2.4.1",
+      "identifier": "ios-2.4.1",
+      "caption": "ARMSX2 iOS 2.4.1 is a much bigger follow-up than the version number might suggest.",
+      "date": "2026-07-18T17:40:47Z",
+      "url": "https://github.com/ARMSX2/ARMSX2/releases/tag/iOS-2.4.1",
+      "appID": "com.armsx2.ios",
+      "tintColor": "#1A7BB7",
+      "notify": false
+    },
+    {
+      "title": "ARMSX2 iOS 2.5.0",
+      "identifier": "ios-2.5.0",
+      "caption": "ARMSX2 2.5.0 is a major update to the emulator core and the iOS frontend.",
+      "date": "2026-07-30T11:37:25Z",
+      "url": "https://github.com/ARMSX2/ARMSX2/releases/tag/iOSv2.5.0",
+      "appID": "com.armsx2.ios",
+      "tintColor": "#1A7BB7",
+      "notify": false
+    },
+    {
+      "title": "ARMSX2 iOS 2.5.1",
+      "identifier": "ios-2.5.1",
+      "caption": "2.5.1 is mostly a fixes release.",
+      "date": "2026-07-31T15:56:12Z",
+      "url": "https://github.com/ARMSX2/ARMSX2/releases/tag/iOSv2.5.1",
+      "appID": "com.armsx2.ios",
+      "tintColor": "#1A7BB7",
+      "notify": false
+    },
+    {
+      "title": "ARMSX2 iOS 2.5.2",
+      "identifier": "ios-2.5.2",
+      "caption": "@Henyckma added an FPS cap that limits presentation only. The game and the audio keep running at full speed, so it costs nothing in emulation and gives back battery and heat instead. Targets are 15, 23.976, 29.94, 30, 45, 59.97, 60, 90 and…",
+      "date": "2026-08-06T15:49:46Z",
+      "url": "https://github.com/ARMSX2/ARMSX2/releases/tag/iOSv2.5.2",
+      "appID": "com.armsx2.ios",
+      "tintColor": "#1A7BB7",
+      "notify": false
     }
   ]
 }

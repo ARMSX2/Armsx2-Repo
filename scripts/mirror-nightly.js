@@ -60,7 +60,7 @@ const publishedFileName = (candidate) => {
 
 const buildChangelog = (candidate) => {
   const [day, time] = candidate.publishedAt.split("T");
-  const heading = `Nightly build ${day} ${time.slice(0, 5)} UTC (${candidate.commit}).`;
+  const heading = candidate.htmlUrl ?? `Nightly build ${day} ${time.slice(0, 5)} UTC (${candidate.commit}).`;
   const whatsNew = markdownToStoreText(whatsNewFromReleaseBody(candidate.body) ?? "");
 
   return whatsNew ? `${heading}\n\n${whatsNew}` : heading;

@@ -23,7 +23,7 @@ const checkResult = (url, response) => ({
 const headCheck = async (url) =>
   checkResult(url, await fetch(url, { method: "HEAD", redirect: "follow" }));
 
-const jsonDocument = async (url) => {
+const fetchedJson = async (url) => {
   const response = await fetch(url, {
     headers: { Accept: "application/json" },
     redirect: "follow",
@@ -126,8 +126,8 @@ const channelFailures = (label, channel, headChecks) => {
 
 const runSmokeCheck = async () => {
   const [source, checksums] = await Promise.all([
-    jsonDocument(canonicalSourceUrl),
-    jsonDocument(canonicalChecksumsUrl),
+    fetchedJson(canonicalSourceUrl),
+    fetchedJson(canonicalChecksumsUrl),
   ]);
 
   const sourceJson = source.payload;

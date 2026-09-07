@@ -32,6 +32,7 @@ const defaults = {
   checksumPath: "checksums.json",
   ipaDirectory: "ipas",
   nightlyPath: "metadata/nightly.json",
+  metadataPath: "metadata/store.json",
   nightlyDirectory: null,
   offlineFallback: true,
   legacyPurge: true,
@@ -59,6 +60,7 @@ const parseArguments = (cliArguments) => parseOptions(
     "--checksums": setOptionValue("checksumPath"),
     "--ipa-dir": setOptionValue("ipaDirectory"),
     "--nightly": setOptionValue("nightlyPath"),
+    "--metadata": setOptionValue("metadataPath"),
     "--nightly-dir": setOptionValue("nightlyDirectory"),
     "--skip-offline-fallback": setOptionFlag("offlineFallback", false),
     "--skip-legacy-purge": setOptionFlag("legacyPurge", false),
@@ -181,7 +183,12 @@ const validateStrictSourceShape = (sourceJson) => {
     errors.push("apps.json must not contain the old GitHub Pages source URL.");
   }
 
-  const forbiddenSourceKeys = ["buildVersion", "appPermissions", "marketplaceID"];
+  if (!isCanonicalPublicUrl(sourceJson.iconURL)) {
+    errors.push(`iconURL must use ${canonicalBaseUrl}.`);
+  }
+
+  // Feather rejects the whole document over a marketplaceID, so never emit one.
+  const forbiddenSourceKeys = ["marketplaceID"];
 
   for (const forbiddenKey of forbiddenSourceKeys) {
     const matchingPaths = nestedKeyPaths(sourceJson, forbiddenKey);
@@ -208,6 +215,15 @@ const validateStrictSourceShape = (sourceJson) => {
 
     if (!isCanonicalPublicUrl(sourceApp.iconURL)) {
       errors.push(`apps[${appIndex}].iconURL must use ${canonicalBaseUrl}.`);
+    }
+
+    if (sourceApp.size !== sourceApp.versions?.[0]?.size) {
+      errors.push(`apps[${appIndex}].size must match versions[0].size.`);
+    }
+
+    // Both keys are published, so they have to describe the same thing.
+    if ((sourceApp.appPermissions?.privacy?.length ?? 0) !== (sourceApp.permissions?.length ?? 0)) {
+      errors.push(`apps[${appIndex}].appPermissions.privacy must cover the same permissions as permissions.`);
     }
 
     if (!Array.isArray(sourceApp.screenshotURLs) || sourceApp.screenshotURLs.length === 0) {
@@ -323,10 +339,10 @@ const matchingSourceVersions = (sourceJson) =>
 
 const validateLocalAssets = async (sourceJson) => {
   const errors = [];
-  const assetUrls = (sourceJson.apps ?? []).flatMap((sourceApp) => [
+  const assetUrls = [sourceJson.iconURL, ...(sourceJson.apps ?? []).flatMap((sourceApp) => [
     sourceApp.iconURL,
     ...(sourceApp.screenshotURLs ?? []),
-  ]).filter(Boolean);
+  ])].filter(Boolean);
 
   for (const assetUrl of assetUrls) {
     const assetPath = urlPathToRepositoryPath(assetUrl);
@@ -342,10 +358,6 @@ const validateLocalAssets = async (sourceJson) => {
   return errors;
 };
 
-// Nightly binaries are mirrored straight to the server and never committed, so
-// only the build being mirrored right now is ever on disk. --nightly-dir points
-// at it and it gets the same byte verification as a stable release; retained
-// older builds have no local file and are skipped.
 const optionalFileStats = async (filePath) => {
   try {
     return await stat(filePath);
@@ -354,6 +366,8 @@ const optionalFileStats = async (filePath) => {
   }
 };
 
+// Nightly binaries never land in the repo, so only the build being mirrored is
+// on disk. --nightly-dir points at it; older rows have no file to check.
 const localIpaPath = (checksumEntry, validationOptions) => {
   const fileName = basename(checksumEntry.fileName ?? "");
 
@@ -461,14 +475,13 @@ const legacyScanRoots = [
   "checksums.json",
 ];
 
-const relativeRepositoryPath = relativePath;
 
 const isTextFile = (entryPath, entryStats) =>
   entryStats.size <= 1024 * 1024
-    && (textExtensions.has(extname(entryPath).toLowerCase()) || relativeRepositoryPath(entryPath) === ".gitignore");
+    && (textExtensions.has(extname(entryPath).toLowerCase()) || relativePath(entryPath) === ".gitignore");
 
 const discoverTextFiles = async (entryPath) => {
-  const entryRelativePath = relativeRepositoryPath(entryPath);
+  const entryRelativePath = relativePath(entryPath);
 
   if (excludedLegacyScanFiles.has(entryRelativePath)) {
     return [];
@@ -530,7 +543,7 @@ const validateLegacyPurge = async () => {
   const textFiles = await repositoryTextFiles();
 
   for (const textFilePath of textFiles) {
-    const repositoryRelativePath = relativeRepositoryPath(textFilePath);
+    const repositoryRelativePath = relativePath(textFilePath);
     const fileText = await readFile(textFilePath, "utf8");
 
     for (const legacyNeedle of legacyNeedles) {
@@ -543,9 +556,8 @@ const validateLegacyPurge = async () => {
   return errors;
 };
 
-// The bytes live on the server, so CI cannot re-hash a retained nightly. What
-// it can do is insist every field of a row agrees with the build the row says
-// it is, which is what catches a corrupt or hand-edited ledger.
+// CI cannot re-hash a retained nightly, but it can insist every field of a row
+// agrees with itself, which catches a hand-edited ledger.
 export const ledgerRowSelfConsistency = (buildPath, build) => {
   const errors = [];
 
@@ -679,12 +691,10 @@ const validateNightlyLedger = async (sourceJson, checksumJson, validationOptions
   return errors;
 };
 
-const changelogPrefixes = {
-  [bundleIdentifier]: "Updated to ARMSX2 iOS",
-  [nightlyBundleIdentifier]: "Nightly build ",
-};
+// Nightly notes are stored in the ledger, so only stable exercises this path.
+const fallbackOpening = (fallbackTemplate) => String(fallbackTemplate ?? "").split("{")[0].trim();
 
-const validateOfflineFallback = async () => {
+const validateOfflineFallback = async (validationOptions) => {
   const temporaryDirectory = await mkdtemp(join(tmpdir(), "armsx2-offline-source-"));
 
   try {
@@ -701,34 +711,24 @@ const validateOfflineFallback = async () => {
     ], { cwd: repositoryRoot });
 
     const offlineSource = await jsonDocument(offlineSourcePath);
+    const metadata = await jsonDocument(resolve(repositoryRoot, validationOptions.metadataPath));
+    const expectedOpening = fallbackOpening(metadata.releaseNotes?.fallback);
+    const stableApp = (offlineSource.apps ?? []).find((sourceApp) => sourceApp.bundleIdentifier === bundleIdentifier);
+    const described = (stableApp?.versions ?? []).filter((sourceVersion) => sourceVersion.localizedDescription);
     const errors = [];
-    const describedPerChannel = new Map();
 
-    for (const sourceApp of offlineSource.apps ?? []) {
-      const expectedPrefix = changelogPrefixes[sourceApp.bundleIdentifier];
-
-      for (const sourceVersion of sourceApp.versions ?? []) {
-        if (!sourceVersion.localizedDescription) {
-          continue;
-        }
-
-        describedPerChannel.set(
-          sourceApp.bundleIdentifier,
-          (describedPerChannel.get(sourceApp.bundleIdentifier) ?? 0) + 1,
-        );
-
-        if (!sourceVersion.localizedDescription.startsWith(expectedPrefix)) {
-          errors.push(
-            `offline fallback generation produced an unpolished changelog for ${sourceApp.bundleIdentifier}.`,
-          );
-        }
-      }
+    if (!expectedOpening) {
+      errors.push(`${validationOptions.metadataPath} has no releaseNotes.fallback to fall back to.`);
     }
 
-    // Only the stable channel exercises the offline path at all, so a nightly
-    // description must never stand in for a missing stable one.
-    if (!describedPerChannel.get(bundleIdentifier)) {
+    if (described.length === 0) {
       errors.push("offline fallback generation produced no stable version descriptions.");
+    }
+
+    for (const sourceVersion of described) {
+      if (expectedOpening && !sourceVersion.localizedDescription.startsWith(expectedOpening)) {
+        errors.push(`offline fallback generation produced an unpolished changelog for ${bundleIdentifier}.`);
+      }
     }
 
     return [...new Set(errors)];
@@ -748,7 +748,7 @@ const runValidation = async () => {
     ...await validateNightlyLedger(sourceJson, checksumJson, validationOptions),
     ...await validateLocalAssets(sourceJson),
     ...await validateLocalIpas(sourceJson, checksumJson, validationOptions),
-    ...(validationOptions.offlineFallback ? await validateOfflineFallback() : []),
+    ...(validationOptions.offlineFallback ? await validateOfflineFallback(validationOptions) : []),
     ...(validationOptions.legacyPurge ? await validateLegacyPurge() : []),
   ];
 
@@ -759,8 +759,7 @@ const runValidation = async () => {
   console.log("apps.json and checksums.json validate against source, asset, and IPA checks.");
 };
 
-// Imported by the tests for the pure checks above, so only validate when this
-// file is the thing being run.
+// The tests import this file, so only validate when it is the entry point.
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
     await runValidation();

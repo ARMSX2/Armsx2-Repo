@@ -181,26 +181,31 @@ const privacyPermission = (infoPlist, plistKey, permissionType) => {
   return { type: permissionType, usageDescription };
 };
 
+// Plist key, the type we publish, and the name sideloaders label it with.
 const permissionMappings = [
-  ["NSPhotoLibraryUsageDescription", "photos"],
-  ["NSPhotoLibraryAddUsageDescription", "photos"],
-  ["NSCameraUsageDescription", "camera"],
-  ["NSLocationWhenInUseUsageDescription", "location"],
-  ["NSLocationAlwaysAndWhenInUseUsageDescription", "location"],
-  ["NSContactsUsageDescription", "contacts"],
-  ["NSRemindersUsageDescription", "reminders"],
-  ["NSAppleMusicUsageDescription", "music"],
-  ["NSMediaLibraryUsageDescription", "music"],
-  ["NSMicrophoneUsageDescription", "microphone"],
-  ["NSSpeechRecognitionUsageDescription", "speech-recognition"],
-  ["NSBluetoothAlwaysUsageDescription", "bluetooth"],
-  ["NSBluetoothPeripheralUsageDescription", "bluetooth"],
-  ["NSLocalNetworkUsageDescription", "network"],
-  ["NSCalendarsUsageDescription", "calendars"],
-  ["NSFaceIDUsageDescription", "faceid"],
-  ["NSSiriUsageDescription", "siri"],
-  ["NSMotionUsageDescription", "motion"],
+  ["NSPhotoLibraryUsageDescription", "photos", "PhotoLibrary"],
+  ["NSPhotoLibraryAddUsageDescription", "photos", "PhotoLibrary"],
+  ["NSCameraUsageDescription", "camera", "Camera"],
+  ["NSLocationWhenInUseUsageDescription", "location", "Location"],
+  ["NSLocationAlwaysAndWhenInUseUsageDescription", "location", "Location"],
+  ["NSContactsUsageDescription", "contacts", "Contacts"],
+  ["NSRemindersUsageDescription", "reminders", "Reminders"],
+  ["NSAppleMusicUsageDescription", "music", "AppleMusic"],
+  ["NSMediaLibraryUsageDescription", "music", "AppleMusic"],
+  ["NSMicrophoneUsageDescription", "microphone", "Microphone"],
+  ["NSSpeechRecognitionUsageDescription", "speech-recognition", "SpeechRecognition"],
+  ["NSBluetoothAlwaysUsageDescription", "bluetooth", "Bluetooth"],
+  ["NSBluetoothPeripheralUsageDescription", "bluetooth", "Bluetooth"],
+  ["NSLocalNetworkUsageDescription", "network", "LocalNetwork"],
+  ["NSCalendarsUsageDescription", "calendars", "Calendars"],
+  ["NSFaceIDUsageDescription", "faceid", "FaceID"],
+  ["NSSiriUsageDescription", "siri", "Siri"],
+  ["NSMotionUsageDescription", "motion", "Motion"],
 ];
+
+const privacyPermissionNames = new Map(
+  permissionMappings.map(([, permissionType, permissionName]) => [permissionType, permissionName]),
+);
 
 const appPermissions = (infoPlist) => {
   const permissionRecords = new Map();
@@ -218,6 +223,16 @@ const appPermissions = (infoPlist) => {
   }
 
   return [...permissionRecords.values()];
+};
+
+// appPermissions is the key clients render. The older permissions array is
+// published alongside it, the way the format's own reference source does.
+export const sourceAppPermissions = (permissions) => {
+  const privacy = permissions
+    .map(({ type, usageDescription }) => ({ name: privacyPermissionNames.get(type), usageDescription }))
+    .filter((entry) => entry.name);
+
+  return privacy.length ? { privacy } : undefined;
 };
 
 const semanticVersionParts = (versionLabel) => {

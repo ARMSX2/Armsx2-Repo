@@ -58,6 +58,9 @@ export const fetchGithubReleases = async (generatorOptions, metadataPayload) => 
 
 const escapedRegExp = (patternText) => patternText.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
 
+// Some Android releases attach an old iOS build, so the tag is what settles it.
+export const iosReleaseVersion = (tagName) => String(tagName ?? "").match(/^iOS[v-]?(\d.*)$/iu)?.[1] ?? null;
+
 const releaseMatchesManifest = (githubRelease, manifest) => {
   const releaseFields = [
     githubRelease.tag_name,
@@ -69,11 +72,15 @@ const releaseMatchesManifest = (githubRelease, manifest) => {
 };
 
 const matchingGithubRelease = (githubReleases, manifest) =>
-  githubReleases.find((githubRelease) => releaseMatchesManifest(githubRelease, manifest)) ?? null;
+  githubReleases
+    .filter((githubRelease) => iosReleaseVersion(githubRelease.tag_name))
+    .find((githubRelease) => releaseMatchesManifest(githubRelease, manifest)) ?? null;
 
-const storeTextBudget = 2000;
+// Sideloaders expand the notes, so this only has to stop a runaway release
+// body. A full iOS changelog runs to about 7k.
+export const storeTextBudget = 8000;
 
-const looksLikeHeading = (paragraph) =>
+export const looksLikeHeading = (paragraph) =>
   !paragraph.includes("\n")
   && !paragraph.startsWith("- ")
   && paragraph.length < 60
@@ -153,6 +160,15 @@ const fallbackChangelog = (manifest, metadataPayload) => {
   return fallbackTemplate.replaceAll("{version}", manifest.version);
 };
 
+// A description opening with the release URL is current. Older "Updated to..."
+// ones still feed the offline fallback, but get rewritten so the link appears.
+const linkedChangelog = (description) =>
+  typeof description === "string" && description.startsWith("https://github.com/");
+
+const generatedChangelog = (description) =>
+  linkedChangelog(description)
+  || (typeof description === "string" && description.startsWith("Updated to ARMSX2 iOS"));
+
 export const existingVersionDescriptions = async (repositoryRoot, sourcePath) => {
   const existingSourcePath = resolve(repositoryRoot, sourcePath);
   const existingSourcePayload = await optionalJsonDocument(existingSourcePath);
@@ -162,7 +178,7 @@ export const existingVersionDescriptions = async (repositoryRoot, sourcePath) =>
     for (const sourceVersion of sourceApp.versions ?? []) {
       const description = sourceVersion.localizedDescription;
 
-      if (typeof description !== "string" || !description.startsWith("Updated to ARMSX2 iOS")) {
+      if (!generatedChangelog(description)) {
         continue;
       }
 
@@ -182,7 +198,7 @@ export const storeChangelog = (manifest, metadataPayload, githubReleases, existi
     `${manifest.version}|${manifest.downloadURL}|${manifest.sha256}`,
   );
 
-  if (publishedDescription && !generatorOptions.refreshChangelogs) {
+  if (linkedChangelog(publishedDescription) && !generatorOptions.refreshChangelogs) {
     return publishedDescription;
   }
 
@@ -190,7 +206,7 @@ export const storeChangelog = (manifest, metadataPayload, githubReleases, existi
   const releaseBody = markdownToStoreText(githubRelease?.body ?? "");
 
   if (releaseBody) {
-    return `Updated to ARMSX2 iOS ${manifest.version}.\n\n${releaseBody}`;
+    return githubRelease.html_url ? `${githubRelease.html_url}\n\n${releaseBody}` : releaseBody;
   }
 
   return publishedDescription
