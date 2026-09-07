@@ -227,7 +227,10 @@ export const generatedBuffers = async (generatorOptions) => {
     manifests: ipaFileManifests,
   };
   const channelBuilds = [stableBuild, nightlyChannelBuild(ledger, generatorOptions)].filter(Boolean);
-  const news = sourceNews(githubReleases, ledger, metadataPayload, existingSource.news ?? []);
+  const news = sourceNews(githubReleases, ledger, metadataPayload, existingSource.news ?? [], {
+    stable: publicAssetUrl(generatorOptions.baseUrl, stableIconFile),
+    nightly: publicAssetUrl(generatorOptions.baseUrl, nightlyIconFile),
+  });
 
   return {
     source: jsonBuffer(sourcePayload(channelBuilds, generatorOptions, screenshotFiles, metadataPayload, news)),

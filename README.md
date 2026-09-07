@@ -31,15 +31,10 @@ https://ios.armsx2.net/apps.json
 
 <table>
   <tr>
-    <td align="center"><img src="assets/screenshots/01-library.jpg" width="180" alt=""><br><sub>Library</sub></td>
-    <td align="center"><img src="assets/screenshots/02-gameplay.jpg" width="180" alt=""><br><sub>In game</sub></td>
-    <td align="center"><img src="assets/screenshots/03-gameplay-2d.jpg" width="180" alt=""><br><sub>2D games</sub></td>
-    <td align="center"><img src="assets/screenshots/04-controller-skin.jpg" width="180" alt=""><br><sub>Controller skin</sub></td>
-  </tr>
-  <tr>
-    <td align="center"><img src="assets/screenshots/05-controller-layout.jpg" width="180" alt=""><br><sub>Controller layout</sub></td>
-    <td align="center"><img src="assets/screenshots/06-pause-menu.jpg" width="180" alt=""><br><sub>Pause menu</sub></td>
-    <td align="center"><img src="assets/screenshots/07-appearance.jpg" width="180" alt=""><br><sub>Appearance</sub></td>
+    <td align="center"><img src="assets/screenshots/01-library.jpg" width="190" alt=""><br><sub>Library</sub></td>
+    <td align="center"><img src="assets/screenshots/02-controller-skin.jpg" width="190" alt=""><br><sub>In game</sub></td>
+    <td align="center"><img src="assets/screenshots/03-pause-menu.jpg" width="190" alt=""><br><sub>Pause menu</sub></td>
+    <td align="center"><img src="assets/screenshots/04-appearance.jpg" width="190" alt=""><br><sub>Appearance</sub></td>
   </tr>
 </table>
 
@@ -133,8 +128,8 @@ Stable builds are committed to `ipas/` and their versions come from the IPA's ow
 <div align="center">
 <sub>
 
-ARMSX2 is open source under GPL-3.0 and builds on PCSX2. It is not officially associated with PCSX2,<br>
-and not affiliated with Sony Interactive Entertainment, PlayStation, or ARM Holdings.
+ARMSX2 is open source under GPL-3.0 and builds on PCSX2. It is not officially associated<br>
+with PCSX2, and not affiliated with Sony Interactive Entertainment or PlayStation.
 
 </sub>
 </div>

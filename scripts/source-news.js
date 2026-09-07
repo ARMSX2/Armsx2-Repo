@@ -34,18 +34,19 @@ const caption = (releaseText, fallbackCaption) => {
   return `${(lastSpace > captionBudget / 2 ? clipped.slice(0, lastSpace) : clipped).trimEnd()}…`;
 };
 
-const stableNewsItem = (githubRelease, version, tintColor) => compactObject({
+const stableNewsItem = (githubRelease, version, tintColor, imageURL) => compactObject({
   title: `ARMSX2 iOS ${version}`,
   identifier: `ios-${version}`,
   caption: caption(githubRelease.body, `Release notes for ARMSX2 iOS ${version}.`),
   date: githubRelease.published_at,
   url: githubRelease.html_url,
   appID: bundleIdentifier,
+  imageURL,
   tintColor,
   notify: false,
 });
 
-const nightlyNewsItem = (ledger, metadataPayload) => {
+const nightlyNewsItem = (ledger, metadataPayload, imageURL) => {
   const [build] = ledger.builds;
   const repository = metadataPayload.releaseNotes?.upstreamRepository;
 
@@ -60,12 +61,13 @@ const nightlyNewsItem = (ledger, metadataPayload) => {
     date: build.publishedAt,
     url: `https://github.com/${repository}/releases/tag/${build.tag}`,
     appID: nightlyBundleIdentifier,
+    imageURL,
     tintColor: ledger.app.tintColor,
     notify: false,
   });
 };
 
-export const sourceNews = (githubReleases, ledger, metadataPayload, existingNews = []) => {
+export const sourceNews = (githubReleases, ledger, metadataPayload, existingNews = [], icons = {}) => {
   // No releases means GitHub was unreachable, not that there is no history.
   if (githubReleases.length === 0) {
     return existingNews;
@@ -76,9 +78,9 @@ export const sourceNews = (githubReleases, ledger, metadataPayload, existingNews
     .filter((githubRelease) => githubRelease.html_url && githubRelease.published_at)
     .map((githubRelease) => ({ githubRelease, version: iosReleaseVersion(githubRelease.tag_name) }))
     .filter(({ version }) => version)
-    .map(({ githubRelease, version }) => stableNewsItem(githubRelease, version, metadataPayload.app.tintColor));
+    .map(({ githubRelease, version }) => stableNewsItem(githubRelease, version, metadataPayload.app.tintColor, icons.stable));
 
-  const nightly = nightlyNewsItem(ledger, metadataPayload);
+  const nightly = nightlyNewsItem(ledger, metadataPayload, icons.nightly);
   const seen = new Set();
   const newest = [...(nightly ? [nightly] : []), ...stable]
     .filter((item) => !seen.has(item.identifier) && seen.add(item.identifier))

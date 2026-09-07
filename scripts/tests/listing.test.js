@@ -50,6 +50,19 @@ test("the newest card is published last so the carousel opens on it", () => {
   assert.equal(news.at(-1).identifier, "ios-2.5.2");
 });
 
+test("news cards carry the app icon rather than a bare colour", () => {
+  const icons = { stable: "https://ios.armsx2.net/assets/icon.png", nightly: "https://ios.armsx2.net/assets/icon-nightly.png" };
+  const ledger = {
+    app: { tintColor: "#954CD5" },
+    builds: [{ date: "2026-09-07", publishedAt: "2026-09-07T14:43:42Z", tag: "nightly-20260907", localizedDescription: "Fixed the boot window." }],
+  };
+
+  const news = sourceNews([release("iOSv2.5.2", "Notes.")], ledger, metadata, [], icons);
+
+  assert.equal(news.find((item) => item.appID === "com.armsx2.ios").imageURL, icons.stable);
+  assert.equal(news.find((item) => item.appID === "com.armsx2.ios.nightly").imageURL, icons.nightly);
+});
+
 test("the nightly card points at its own release tag", () => {
   const ledger = {
     app: { tintColor: "#954CD5" },
