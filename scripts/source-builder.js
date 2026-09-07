@@ -16,7 +16,7 @@ import {
   readDirectoryEntries,
 } from "./source-utils.js";
 
-const findIpaFiles = async (inputDirectory) => {
+export const findIpaFiles = async (inputDirectory) => {
   const directoryEntries = await readDirectoryEntries(inputDirectory);
 
   return directoryEntries
@@ -86,6 +86,7 @@ const sourceVersion = (manifest) =>
     localizedDescription: manifest.localizedDescription,
     downloadURL: manifest.downloadURL,
     size: manifest.size,
+    sha256: manifest.sha256,
     minOSVersion: manifest.minOSVersion,
     maxOSVersion: manifest.maxOSVersion,
   });
@@ -159,6 +160,7 @@ export const generatedBuffers = async (generatorOptions) => {
       metadataPayload,
       githubReleases,
       existingDescriptions,
+      generatorOptions,
     );
   }
 
