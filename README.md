@@ -113,6 +113,14 @@ The pieces they use:
 
 Listing copy lives in `metadata/`, not in code. `metadata/store.json` holds the stable app and the source header; `metadata/nightly.json` holds the nightly app and the ledger of mirrored builds. Assets live in `assets/` — `icon.png` for stable, `icon-nightly.png` for nightly, and the screenshots both channels share. `index.html` is the page served at the root of the site; it is hand-written and has no build step.
 
+### Assets
+
+Published image URLs carry a `?v=<hash>` fingerprint taken from the file's own
+contents. The edge caches assets for years under a stable filename, so without it a
+replaced icon or screenshot keeps serving the old bytes — which is exactly what
+happened to `assets/icon.png`. `index.html` spells its fingerprints out by hand, and
+`validate:source` fails if they drift from the files.
+
 ### Releases and news
 
 Release notes open with a link to the upstream release, because sideloaders preview only the first few lines and that link is the most useful thing to put there. Notes are written once and then left alone, so an edit to an upstream release body cannot make an unrelated push fail `check:source`. Run `npm run generate:source -- --refresh-changelogs` to deliberately re-pull them.
