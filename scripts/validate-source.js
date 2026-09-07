@@ -338,10 +338,14 @@ const matchingSourceVersions = (sourceJson) =>
 
 const validateLocalAssets = async (sourceJson) => {
   const errors = [];
-  const assetUrls = [sourceJson.iconURL, ...(sourceJson.apps ?? []).flatMap((sourceApp) => [
-    sourceApp.iconURL,
-    ...(sourceApp.screenshotURLs ?? []),
-  ])].filter(Boolean);
+  const assetUrls = [
+    sourceJson.iconURL,
+    ...(sourceJson.news ?? []).map((newsItem) => newsItem.imageURL),
+    ...(sourceJson.apps ?? []).flatMap((sourceApp) => [
+      sourceApp.iconURL,
+      ...(sourceApp.screenshotURLs ?? []),
+    ]),
+  ].filter(Boolean);
 
   for (const assetUrl of assetUrls) {
     const assetPath = urlPathToRepositoryPath(assetUrl);

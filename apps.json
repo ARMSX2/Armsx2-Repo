@@ -14,16 +14,13 @@
       "bundleIdentifier": "com.armsx2.ios",
       "developerName": "ARMSX2",
       "subtitle": "PlayStation 2 games on iPhone and iPad. Needs JIT.",
-      "localizedDescription": "Play your PS2 games on iPhone and iPad.\nYou need your own PS2 BIOS and game files, and JIT for full speed. None of it is included.\n\nARMSX2 is a native ARM64 build of PCSX2. The recompilers run on your device instead of translating x86 code, which is what makes PS2 emulation workable on a phone. They are the shared ARM64 recompilers, checked by comparing what they execute against other emulators, and they apply the game database's own patches as a game runs.\n\nWhat you get\n- On-screen controls you can move and resize, with separate portrait and landscape layouts\n- Controller skins, browsed and installed inside the app with a preview and the author on every row, or brought in yourself as .armsx2skin, Delta or ManicEMU. Each game can keep its own\n- Per-game settings, so a fix for one game does not follow you into the next\n- RetroAchievements, with your account, your progress and the achievement list in the app, and unlocks arriving as ordinary iOS notifications. Hardcore Mode still allows trusted widescreen and 60 FPS patches, and still blocks cheats\n- Save states and virtual memory cards\n- Save states from AetherSX2 and NetherSX2 builds load directly, once you copy them in through Files\n- A frame rate cap that limits presentation only, to cut heat and battery drain\n- An on-screen performance overlay\n- External controllers, plus adjustable phone haptics\n- Live backgrounds behind the menus: twelve built in, including a PS2 menu and an XMB recreation, or your own image or video, set separately for portrait and landscape\n- Ten alternate app icons\n\nRequirements\niPhone or iPad on iOS 17 or later. JIT is what gets you full speed. Without it ARMSX2 falls back to an interpreter rather than refusing to start, flags it with a No JIT badge while you play, and most games are too slow to enjoy. Disc images open straight from Files: .iso, .bin, .img, .chd and .rom.\n\nHow well a game runs depends on your device, your iOS version and the game itself. Some are perfect, some are slow, some do not boot. Check the compatibility list before you start.\n\nLinks\nWebsite: https://armsx2.net\nCompatibility: https://armsx2.net/compatibility\nDocs and FAQ: https://armsx2.net/docs\nDiscord: https://discord.gg/S7VxwfS8w9\nSource code: https://github.com/ARMSX2/ARMSX2\n\nSupport development\nPatreon: https://www.patreon.com/cw/ARMSX2\nKo-fi: https://ko-fi.com/armsx2\n\nCredits\nARMSX2 is open source under GPL-3.0 and builds on PCSX2. Started by MoonPower with support from jpolo1224, forked from PCSX2_ARM64 by Pontos.\n\nApp icon by fffathur, logo by Vivimagic. The icon artwork is MIT licensed: https://github.com/ARMSX2/Save-Tower\n\nARMSX2 does not include games or BIOS files. Donations are voluntary and the project seeks no commercial return. It is not officially associated with PCSX2 or with any other fork of it, and not affiliated with Sony Interactive Entertainment, PlayStation, or ARM Holdings.",
+      "localizedDescription": "Play your PS2 games on iPhone and iPad.\nYou need your own PS2 BIOS and game files, and JIT for full speed. None of it is included.\n\nARMSX2 is a native ARM64 build of PCSX2. The recompilers run on your device instead of translating x86 code, which is what makes PS2 emulation workable on a phone. They are the shared ARM64 recompilers, checked by comparing what they execute against other emulators, and they apply the game database's own patches as a game runs.\n\nWhat you get\n- On-screen controls you can move and resize, with separate portrait and landscape layouts\n- Controller skins, browsed and installed inside the app with a preview and the author on every row, or brought in yourself as .armsx2skin, Delta or ManicEMU. Each game can keep its own\n- Per-game settings, so a fix for one game does not follow you into the next\n- RetroAchievements, with your account, your progress and the achievement list in the app, and unlocks arriving as ordinary iOS notifications. Hardcore Mode still allows trusted widescreen and 60 FPS patches, and still blocks cheats\n- Save states and virtual memory cards\n- Save states from AetherSX2 and NetherSX2 builds load directly, once you copy them in through Files\n- A frame rate cap that limits presentation only, to cut heat and battery drain\n- An on-screen performance overlay\n- External controllers, plus adjustable phone haptics\n- Live backgrounds behind the menus: twelve built in, including a PS2 menu and an XMB recreation, or your own image or video, set separately for portrait and landscape\n- Ten alternate app icons\n\nRequirements\niPhone or iPad on iOS 17 or later. JIT is what gets you full speed. Without it ARMSX2 falls back to an interpreter rather than refusing to start, flags it with a No JIT badge while you play, and most games are too slow to enjoy. Disc images open straight from Files: .iso, .bin, .img, .chd and .rom.\n\nHow well a game runs depends on your device, your iOS version and the game itself. Some are perfect, some are slow, some do not boot. Check the compatibility list before you start.\n\nLinks\nWebsite: https://armsx2.net\nCompatibility: https://armsx2.net/compatibility\nDocs and FAQ: https://armsx2.net/docs\nDiscord: https://discord.gg/S7VxwfS8w9\nSource code: https://github.com/ARMSX2/ARMSX2\n\nSupport development\nPatreon: https://www.patreon.com/cw/ARMSX2\nKo-fi: https://ko-fi.com/armsx2\n\nCredits\nARMSX2 is open source under GPL-3.0 and builds on PCSX2. Started by MoonPower with support from jpolo1224, forked from PCSX2_ARM64 by Pontos.\n\nApp icon by fffathur, logo by Vivimagic. The icon artwork is MIT licensed: https://github.com/ARMSX2/Save-Tower\n\nARMSX2 does not include games or BIOS files. Donations are voluntary and the project seeks no commercial return. It is not officially associated with PCSX2 or with any other fork of it, and not affiliated with Sony Interactive Entertainment or PlayStation.",
       "iconURL": "https://ios.armsx2.net/assets/icon.png",
       "screenshotURLs": [
         "https://ios.armsx2.net/assets/screenshots/01-library.jpg",
-        "https://ios.armsx2.net/assets/screenshots/02-gameplay.jpg",
-        "https://ios.armsx2.net/assets/screenshots/03-gameplay-2d.jpg",
-        "https://ios.armsx2.net/assets/screenshots/04-controller-skin.jpg",
-        "https://ios.armsx2.net/assets/screenshots/05-controller-layout.jpg",
-        "https://ios.armsx2.net/assets/screenshots/06-pause-menu.jpg",
-        "https://ios.armsx2.net/assets/screenshots/07-appearance.jpg"
+        "https://ios.armsx2.net/assets/screenshots/02-controller-skin.jpg",
+        "https://ios.armsx2.net/assets/screenshots/03-pause-menu.jpg",
+        "https://ios.armsx2.net/assets/screenshots/04-appearance.jpg"
       ],
       "tintColor": "#1A7BB7",
       "category": "games",
@@ -73,6 +70,7 @@
       "date": "2026-06-24T18:41:00Z",
       "url": "https://github.com/ARMSX2/ARMSX2/releases/tag/iOSv2.3.1",
       "appID": "com.armsx2.ios",
+      "imageURL": "https://ios.armsx2.net/assets/icon.png",
       "tintColor": "#1A7BB7",
       "notify": false
     },
@@ -83,6 +81,7 @@
       "date": "2026-07-03T17:31:41Z",
       "url": "https://github.com/ARMSX2/ARMSX2/releases/tag/iOSv2.4.0",
       "appID": "com.armsx2.ios",
+      "imageURL": "https://ios.armsx2.net/assets/icon.png",
       "tintColor": "#1A7BB7",
       "notify": false
     },
@@ -93,6 +92,7 @@
       "date": "2026-07-18T17:40:47Z",
       "url": "https://github.com/ARMSX2/ARMSX2/releases/tag/iOS-2.4.1",
       "appID": "com.armsx2.ios",
+      "imageURL": "https://ios.armsx2.net/assets/icon.png",
       "tintColor": "#1A7BB7",
       "notify": false
     },
@@ -103,6 +103,7 @@
       "date": "2026-07-30T11:37:25Z",
       "url": "https://github.com/ARMSX2/ARMSX2/releases/tag/iOSv2.5.0",
       "appID": "com.armsx2.ios",
+      "imageURL": "https://ios.armsx2.net/assets/icon.png",
       "tintColor": "#1A7BB7",
       "notify": false
     },
@@ -113,6 +114,7 @@
       "date": "2026-07-31T15:56:12Z",
       "url": "https://github.com/ARMSX2/ARMSX2/releases/tag/iOSv2.5.1",
       "appID": "com.armsx2.ios",
+      "imageURL": "https://ios.armsx2.net/assets/icon.png",
       "tintColor": "#1A7BB7",
       "notify": false
     },
@@ -123,6 +125,7 @@
       "date": "2026-08-06T15:49:46Z",
       "url": "https://github.com/ARMSX2/ARMSX2/releases/tag/iOSv2.5.2",
       "appID": "com.armsx2.ios",
+      "imageURL": "https://ios.armsx2.net/assets/icon.png",
       "tintColor": "#1A7BB7",
       "notify": false
     }
