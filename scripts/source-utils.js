@@ -1,4 +1,9 @@
 import { readdir, readFile } from "node:fs/promises";
+import { relative, sep } from "node:path";
+
+import { repositoryRoot } from "./constants.js";
+
+export const repositoryPath = (entryPath) => relative(repositoryRoot, entryPath).split(sep).join("/");
 
 export const normalizedPublicBaseUrl = (baseUrl) => {
   const publicBaseUrl = new URL(baseUrl);

@@ -2,9 +2,9 @@
 
 import Ajv from "ajv";
 import { execFile } from "node:child_process";
-import { mkdtemp, readdir, readFile, rm, stat } from "node:fs/promises";
+import { mkdtemp, readFile, rm, stat } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { basename, extname, join, relative, resolve, sep } from "node:path";
+import { basename, join, resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 
@@ -20,8 +20,9 @@ import {
   sourceIdentifier,
 } from "./constants.js";
 import { ipaFileManifest } from "./ipa-metadata.js";
+import { legacyReferenceErrors } from "./legacy-references.js";
 import { nightlyVersion } from "./nightly-ipa.js";
-import { optionalJsonDocument } from "./source-utils.js";
+import { optionalJsonDocument, repositoryPath } from "./source-utils.js";
 
 const execFileAsync = promisify(execFile);
 const schemaPath = resolve(repositoryRoot, "scripts/source-schema.json");
@@ -72,8 +73,6 @@ const jsonDocument = async (jsonPath) => {
   const jsonText = await readFile(jsonPath, "utf8");
   return JSON.parse(jsonText);
 };
-
-const relativePath = (entryPath) => relative(repositoryRoot, entryPath).split(sep).join("/");
 
 const assertFileExists = async (filePath, label, errors) => {
   try {
@@ -221,7 +220,7 @@ const validateStrictSourceShape = (sourceJson) => {
       errors.push(`apps[${appIndex}].size must match versions[0].size.`);
     }
 
-    // Both keys are published, so they have to describe the same thing.
+    // We publish both keys. They must not disagree.
     if ((sourceApp.appPermissions?.privacy?.length ?? 0) !== (sourceApp.permissions?.length ?? 0)) {
       errors.push(`apps[${appIndex}].appPermissions.privacy must cover the same permissions as permissions.`);
     }
@@ -352,7 +351,7 @@ const validateLocalAssets = async (sourceJson) => {
       continue;
     }
 
-    await assertFileExists(assetPath, relativePath(assetPath), errors);
+    await assertFileExists(assetPath, repositoryPath(assetPath), errors);
   }
 
   return errors;
@@ -417,11 +416,11 @@ const validateLocalIpas = async (sourceJson, checksumJson, validationOptions) =>
     }
 
     if (fileStats.size !== checksumEntry.size) {
-      errors.push(`${checksumPath}.size must match ${relativePath(ipaPath)} (${fileStats.size}).`);
+      errors.push(`${checksumPath}.size must match ${repositoryPath(ipaPath)} (${fileStats.size}).`);
     }
 
     if (manifest.sha256 !== checksumEntry.sha256) {
-      errors.push(`${checksumPath}.sha256 must match ${relativePath(ipaPath)}.`);
+      errors.push(`${checksumPath}.sha256 must match ${repositoryPath(ipaPath)}.`);
     }
 
     if (manifest.version !== checksumEntry.version) {
@@ -442,114 +441,6 @@ const validateLocalIpas = async (sourceJson, checksumJson, validationOptions) =>
 
     if (sourceVersion && sourceVersion.sha256 !== manifest.sha256) {
       errors.push(`${checksumPath}.sha256 must match apps.json for ${checksumEntry.downloadURL}.`);
-    }
-  }
-
-  return errors;
-};
-
-const textExtensions = new Set([
-  ".html",
-  ".js",
-  ".jsx",
-  ".json",
-  ".md",
-  ".mjs",
-  ".ts",
-  ".tsx",
-  ".txt",
-  ".yaml",
-  ".yml",
-]);
-
-const skippedDirectories = new Set([".git", "node_modules"]);
-const excludedLegacyScanFiles = new Set(["scripts/validate-source.js"]);
-const legacyScanRoots = [
-  ".github",
-  "README.md",
-  "index.html",
-  "metadata",
-  "scripts",
-  "package.json",
-  "apps.json",
-  "checksums.json",
-];
-
-
-const isTextFile = (entryPath, entryStats) =>
-  entryStats.size <= 1024 * 1024
-    && (textExtensions.has(extname(entryPath).toLowerCase()) || relativePath(entryPath) === ".gitignore");
-
-const discoverTextFiles = async (entryPath) => {
-  const entryRelativePath = relativePath(entryPath);
-
-  if (excludedLegacyScanFiles.has(entryRelativePath)) {
-    return [];
-  }
-
-  const entryStats = await stat(entryPath);
-
-  if (entryStats.isFile()) {
-    return isTextFile(entryPath, entryStats) ? [entryPath] : [];
-  }
-
-  if (!entryStats.isDirectory()) {
-    return [];
-  }
-
-  const directoryEntries = await readdir(entryPath, { withFileTypes: true });
-  const discoveredFiles = [];
-
-  for (const directoryEntry of directoryEntries) {
-    if (directoryEntry.isDirectory() && skippedDirectories.has(directoryEntry.name)) {
-      continue;
-    }
-
-    discoveredFiles.push(...await discoverTextFiles(join(entryPath, directoryEntry.name)));
-  }
-
-  return discoveredFiles;
-};
-
-const repositoryTextFiles = async () => {
-  const discoveredFiles = [];
-
-  for (const scanRoot of legacyScanRoots) {
-    const scanPath = resolve(repositoryRoot, scanRoot);
-
-    try {
-      discoveredFiles.push(...await discoverTextFiles(scanPath));
-    } catch (filesystemError) {
-      if (filesystemError?.code !== "ENOENT") {
-        throw filesystemError;
-      }
-    }
-  }
-
-  return [...new Set(discoveredFiles)];
-};
-
-const legacyNeedles = [
-  "AltStore",
-  "PC build",
-  "Cydia",
-  "Sileo",
-  "source.json",
-  "releases.json",
-];
-
-const validateLegacyPurge = async () => {
-  const errors = [];
-  const textFiles = await repositoryTextFiles();
-
-  for (const textFilePath of textFiles) {
-    const repositoryRelativePath = relativePath(textFilePath);
-    const fileText = await readFile(textFilePath, "utf8");
-
-    for (const legacyNeedle of legacyNeedles) {
-      if (fileText.includes(legacyNeedle)) {
-        errors.push(`${repositoryRelativePath} contains legacy reference: ${legacyNeedle}`);
-      }
     }
   }
 
@@ -749,7 +640,7 @@ const runValidation = async () => {
     ...await validateLocalAssets(sourceJson),
     ...await validateLocalIpas(sourceJson, checksumJson, validationOptions),
     ...(validationOptions.offlineFallback ? await validateOfflineFallback(validationOptions) : []),
-    ...(validationOptions.legacyPurge ? await validateLegacyPurge() : []),
+    ...(validationOptions.legacyPurge ? await legacyReferenceErrors() : []),
   ];
 
   if (errors.length > 0) {
@@ -759,7 +650,7 @@ const runValidation = async () => {
   console.log("apps.json and checksums.json validate against source, asset, and IPA checks.");
 };
 
-// The tests import this file, so only validate when it is the entry point.
+// Imported by the tests. Guard the run.
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   try {
     await runValidation();

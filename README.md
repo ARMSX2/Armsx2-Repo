@@ -109,6 +109,7 @@ The pieces they use:
 - `source-builder.js` assembles `apps.json` and `checksums.json`. `source-news.js` builds the news items. `source-schema.json` is the shape `validate-source.js` enforces.
 - `ipa-metadata.js` reads an IPA: version, size, hash and the permissions it declares.
 - `nightly-releases.js` finds upstream nightly builds. `nightly-ipa.js` repacks one so it installs beside the stable app.
+- `legacy-references.js` scans the repository for strings left over from the old hosting setup, and is the reason `validate:source` touches files that have nothing to do with `apps.json`.
 - `github-releases.js` and `github-assets.js` are the only things that talk to GitHub. `github-releases.js` also turns a release body into store text.
 - `cli.js`, `constants.js`, `errors.js` and `source-utils.js` are the small shared pieces — argument parsing, the canonical URLs and bundle identifiers, typed errors, and JSON and URL helpers.
 - Tests live in `scripts/tests/`. `npm test` runs `scripts/tests/*.test.js` on Node 22 or later.
