@@ -61,26 +61,7 @@ const jsonDocument = async (jsonPath) => {
   return JSON.parse(jsonText);
 };
 
-const fileBuffer = async (filePath) => readFile(filePath);
-
 const relativePath = (entryPath) => relative(repositoryRoot, entryPath).split(sep).join("/");
-
-const filesMatch = async (leftPath, rightPath) => {
-  try {
-    const [leftBuffer, rightBuffer] = await Promise.all([
-      fileBuffer(leftPath),
-      fileBuffer(rightPath),
-    ]);
-
-    return leftBuffer.equals(rightBuffer);
-  } catch (filesystemError) {
-    if (filesystemError?.code === "ENOENT") {
-      return false;
-    }
-
-    throw filesystemError;
-  }
-};
 
 const assertFileExists = async (filePath, label, errors) => {
   try {
@@ -290,7 +271,7 @@ const validateChecksumManifest = (sourceJson, checksumJson) => {
     }
 
     if (!sourceDownloadURLs.has(checksumEntry.downloadURL)) {
-      errors.push(`${checksumPath}.downloadURL is absent from public/apps.json.`);
+      errors.push(`${checksumPath}.downloadURL is absent from apps.json.`);
     }
 
     if (!isCanonicalPublicUrl(checksumEntry.downloadURL)) {
@@ -309,30 +290,6 @@ const matchingSourceVersions = (sourceJson) =>
     })),
   );
 
-const validateGeneratedMirrors = async (validationOptions) => {
-  const errors = [];
-
-  if (validationOptions.sourcePath === defaults.sourcePath) {
-    const rootSourcePath = resolve(repositoryRoot, validationOptions.sourcePath);
-    const publicSourcePath = resolve(repositoryRoot, "public/apps.json");
-
-    if (!await filesMatch(rootSourcePath, publicSourcePath)) {
-      errors.push("public/apps.json must match apps.json.");
-    }
-  }
-
-  if (validationOptions.checksumPath === defaults.checksumPath) {
-    const rootChecksumsPath = resolve(repositoryRoot, validationOptions.checksumPath);
-    const publicChecksumsPath = resolve(repositoryRoot, "public/checksums.json");
-
-    if (!await filesMatch(rootChecksumsPath, publicChecksumsPath)) {
-      errors.push("public/checksums.json must match checksums.json.");
-    }
-  }
-
-  return errors;
-};
-
 const validateLocalAssets = async (sourceJson) => {
   const errors = [];
   const assetUrls = (sourceJson.apps ?? []).flatMap((sourceApp) => [
@@ -348,11 +305,7 @@ const validateLocalAssets = async (sourceJson) => {
       continue;
     }
 
-    const assetLabel = relativePath(assetPath);
-    await assertFileExists(assetPath, assetLabel, errors);
-
-    const publicAssetPath = resolve(repositoryRoot, "public", assetLabel);
-    await assertFileExists(publicAssetPath, `public/${assetLabel}`, errors);
+    await assertFileExists(assetPath, relativePath(assetPath), errors);
   }
 
   return errors;
@@ -426,7 +379,7 @@ const textExtensions = new Set([
   ".yml",
 ]);
 
-const skippedDirectories = new Set([".git", "node_modules", "dist", ".vite"]);
+const skippedDirectories = new Set([".git", "node_modules"]);
 const excludedLegacyScanFiles = new Set(["scripts/validate-source.js"]);
 const legacyScanRoots = [
   ".github",
@@ -437,8 +390,6 @@ const legacyScanRoots = [
   "package.json",
   "apps.json",
   "checksums.json",
-  "public/apps.json",
-  "public/checksums.json",
 ];
 
 const relativeRepositoryPath = relativePath;
@@ -567,7 +518,6 @@ const runValidation = async () => {
     ...await validateAgainstSourceSchema(sourceJson),
     ...validateStrictSourceShape(sourceJson),
     ...validateChecksumManifest(sourceJson, checksumJson),
-    ...await validateGeneratedMirrors(validationOptions),
     ...await validateLocalAssets(sourceJson),
     ...await validateLocalIpas(sourceJson, checksumJson, validationOptions),
     ...(validationOptions.offlineFallback ? await validateOfflineFallback() : []),

@@ -6,12 +6,17 @@ on:
   pull_request:
     branches: [main]
 
+concurrency:
+  group: publish-ios-source
+  cancel-in-progress: false
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     env:
       ARMSX2_PUBLIC_BASE_URL: https://ios.armsx2.net
+      DEPLOY_ROOT: /home/armsx2-ios/htdocs/ios.armsx2.net
 
     steps:
       - name: Checkout code
@@ -26,32 +31,61 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Generate source
-        run: npm run generate:source
+      - name: Run unit tests
+        run: npm test
 
-      - name: Validate generated source
-        run: |
-          npm run check:source
-          npm run validate:source
+      - name: Check generated files
+        run: npm run check:source
 
-      - name: Build site (Vite)
-        run: npm run build
+      - name: Validate source
+        run: npm run validate:source
 
-      - name: Prepare deployment files
+      - name: Stage deployment tree
         if: github.event_name == 'push'
         run: |
           rm -rf .deploy
           mkdir -p .deploy
-          cp -R dist/. .deploy/
-          cp -R ipas .deploy/
+          cp index.html apps.json checksums.json .deploy/
+          cp -R assets .deploy/
 
-      - name: Deploy to server
+      # rsync --delete removes whatever is no longer published, so an empty
+      # ipas/ would take the live download with it.
+      - name: Guard the published IPAs
         if: github.event_name == 'push'
-        uses: appleboy/scp-action@v1.0.0
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: armsx2-ios
-          password: ${{ secrets.SERVER_PASSWORD }}
-          source: ".deploy/*,.deploy/.nojekyll"
-          target: "/home/armsx2-ios/htdocs/ios.armsx2.net"
-          strip_components: 1
+        run: |
+          node -e '
+            const { readdirSync, statSync } = require("node:fs");
+            const files = readdirSync("ipas").filter((name) => name.endsWith(".ipa"));
+            if (files.length === 0) throw new Error("ipas/ contains no IPA files.");
+            for (const entry of require("./checksums.json").files) {
+              statSync(`ipas/${entry.fileName}`);
+            }
+            console.log(`${files.length} IPA file(s) ready to publish.`);
+          '
+
+      - name: Install rsync client
+        if: github.event_name == 'push'
+        run: sudo apt-get update && sudo apt-get install -y sshpass rsync
+
+      - name: Publish the document root
+        if: github.event_name == 'push'
+        env:
+          SSHPASS: ${{ secrets.SERVER_PASSWORD }}
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+        run: |
+          rsync -rlt --delete --exclude='/ipas/' --exclude='/.well-known/' \
+            -e "sshpass -e ssh -o StrictHostKeyChecking=accept-new" \
+            .deploy/ "armsx2-ios@${SERVER_HOST}:${DEPLOY_ROOT}/"
+
+      # Compare by content, not timestamp. A fresh checkout restamps every
+      # file, so rsync's default quick check treats the IPA as changed on every
+      # run and walks all 26 MB through the delta algorithm to prove otherwise.
+      - name: Publish the IPAs
+        if: github.event_name == 'push'
+        env:
+          SSHPASS: ${{ secrets.SERVER_PASSWORD }}
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+        run: |
+          rsync -rlt --checksum --delete --exclude='/nightly/' \
+            -e "sshpass -e ssh -o StrictHostKeyChecking=accept-new" \
+            ipas/ "armsx2-ios@${SERVER_HOST}:${DEPLOY_ROOT}/ipas/"
