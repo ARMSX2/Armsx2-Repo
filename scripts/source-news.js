@@ -85,6 +85,6 @@ export const sourceNews = (githubReleases, ledger, metadataPayload, existingNews
     .sort((left, right) => right.date.localeCompare(left.date))
     .slice(0, retainedNews);
 
-  // Feather draws the carousel back to front, so the newest card has to sit last.
+  // Newest card last: the carousel is drawn back to front.
   return newest.reverse();
 };

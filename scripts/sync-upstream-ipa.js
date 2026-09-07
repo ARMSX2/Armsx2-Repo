@@ -155,8 +155,8 @@ const publishedFileExists = async (syncOptions, fileName) => {
   }
 };
 
-// A matching hash only counts while the file is still on disk, or the sync
-// short-circuits and leaves apps.json pointing at nothing.
+// The hash matching is not enough on its own. If the file has gone, the sync
+// short-circuits and apps.json ends up pointing at nothing.
 const checksumExists = async (syncOptions, ipaSha256) => {
   const checksumPath = resolve(repositoryRoot, syncOptions.checksumsPath);
   const checksumPayload = await optionalJsonDocument(checksumPath, { files: [] });
