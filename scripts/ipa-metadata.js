@@ -31,7 +31,7 @@ const sha256ForFile = async (ipaFilePath) => {
   return hash.digest("hex");
 };
 
-const mainInfoPlistEntry = (ipaArchive, ipaFilePath) => {
+export const mainInfoPlistEntry = (ipaArchive, ipaFilePath) => {
   const matchingEntries = ipaArchive
     .getEntries()
     .filter((archiveEntry) =>
@@ -71,7 +71,7 @@ const parseXmlInfoPlist = (infoPlistBuffer) => {
   return parsedInfoPlist;
 };
 
-const parseInfoPlist = (infoPlistBuffer) => {
+export const parseInfoPlist = (infoPlistBuffer) => {
   if (infoPlistBuffer.subarray(0, 6).toString("ascii") === "bplist") {
     return parseBinaryInfoPlist(infoPlistBuffer);
   }
@@ -287,10 +287,11 @@ export const ipaFileManifest = async (ipaFilePath, generatorOptions) => {
   const { infoPlist, packageTimestamp } = extractIpaMetadata(ipaFilePath);
   const manifestTimestamp = packageTimestamp ?? sourceTimestampFromStats(fileStats);
   const ipaBundleIdentifier = requiredInfoPlistString(infoPlist, "CFBundleIdentifier", ipaFileName);
+  const expectedBundleIdentifier = generatorOptions.bundleIdentifier ?? bundleIdentifier;
 
-  if (ipaBundleIdentifier !== bundleIdentifier) {
+  if (ipaBundleIdentifier !== expectedBundleIdentifier) {
     throw new SourceGenerationError(
-      `${ipaFileName} reports ${ipaBundleIdentifier}; expected ${bundleIdentifier}.`,
+      `${ipaFileName} reports ${ipaBundleIdentifier}; expected ${expectedBundleIdentifier}.`,
     );
   }
 

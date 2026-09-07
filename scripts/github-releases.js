@@ -74,7 +74,23 @@ const matchingGithubRelease = (githubReleases, manifest) =>
 const storeTextBudget = 2000;
 
 const looksLikeHeading = (paragraph) =>
-  !paragraph.includes("\n") && paragraph.length < 60 && !/[.!?:]$/u.test(paragraph);
+  !paragraph.includes("\n")
+  && !paragraph.startsWith("- ")
+  && paragraph.length < 60
+  && !/[.!?:]$/u.test(paragraph);
+
+// A single paragraph can be longer than the whole budget. Cutting it at a
+// sentence, or failing that a word, still beats publishing nothing.
+const trimmedToBudget = (paragraph) => {
+  const clipped = paragraph.slice(0, storeTextBudget);
+  const sentenceEnd = clipped.search(/[^.!?]*$/u);
+
+  if (sentenceEnd > storeTextBudget / 2) {
+    return clipped.slice(0, sentenceEnd).trimEnd();
+  }
+
+  return clipped.slice(0, clipped.lastIndexOf(" ")).trimEnd();
+};
 
 // Whole paragraphs only, so a cut never lands mid-sentence, and never on a
 // heading whose section did not fit.
@@ -124,7 +140,7 @@ export const markdownToStoreText = (markdownText) => {
   const { kept, truncated } = withinBudget(candidateParagraphs);
 
   if (kept.length === 0) {
-    return "";
+    return candidateParagraphs.length === 0 ? "" : `${trimmedToBudget(candidateParagraphs[0])}\n\n\u2026`;
   }
 
   return truncated ? `${kept.join("\n\n")}\n\n\u2026` : kept.join("\n\n");
@@ -150,7 +166,10 @@ export const existingVersionDescriptions = async (repositoryRoot, sourcePath) =>
         continue;
       }
 
-      versionDescriptions.set(`${sourceVersion.version}|${sourceVersion.downloadURL}`, description);
+      versionDescriptions.set(
+        `${sourceVersion.version}|${sourceVersion.downloadURL}|${sourceVersion.sha256 ?? ""}`,
+        description,
+      );
       versionDescriptions.set(sourceVersion.version, description);
     }
   }
@@ -159,7 +178,9 @@ export const existingVersionDescriptions = async (repositoryRoot, sourcePath) =>
 };
 
 export const storeChangelog = (manifest, metadataPayload, githubReleases, existingDescriptions, generatorOptions = {}) => {
-  const publishedDescription = existingDescriptions.get(`${manifest.version}|${manifest.downloadURL}`);
+  const publishedDescription = existingDescriptions.get(
+    `${manifest.version}|${manifest.downloadURL}|${manifest.sha256}`,
+  );
 
   if (publishedDescription && !generatorOptions.refreshChangelogs) {
     return publishedDescription;

@@ -32,7 +32,7 @@
       header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
       header img { width: 72px; height: 72px; border-radius: 16px; }
       h1 { margin: 0; font-size: 1.6rem; letter-spacing: -0.01em; }
-      header p { margin: 0.2rem 0 0; color: var(--muted); }
+      header .tagline { margin: 0.2rem 0 0; }
 
       h2 { margin: 2.5rem 0 0.75rem; font-size: 1rem; text-transform: uppercase;
            letter-spacing: 0.08em; color: var(--muted); }
@@ -67,6 +67,9 @@
         overflow-wrap: anywhere;
       }
 
+      p { color: var(--muted); }
+      strong { color: var(--text); font-weight: 600; }
+
       ul { margin: 0; padding-left: 1.2rem; color: var(--muted); }
       li { margin: 0.35rem 0; }
 
@@ -87,7 +90,7 @@
         <img src="/assets/icon.png" alt="">
         <div>
           <h1>ARMSX2 iOS</h1>
-          <p>Modern PlayStation 2 emulation for iOS.</p>
+          <p class="tagline">Modern PlayStation 2 emulation for iOS.</p>
         </div>
       </header>
 
@@ -100,6 +103,15 @@
 
       <h2>Or add it by hand</h2>
       <span class="url">https://ios.armsx2.net/apps.json</span>
+
+      <h2>Two channels, one source</h2>
+      <p>
+        Adding the source lists both <strong>ARMSX2 iOS</strong>, the stable release, and
+        <strong>ARMSX2 Nightly</strong>, an automated build of the latest code. They install
+        as separate apps and keep separate save states, memory cards and settings, so a
+        nightly cannot disturb a working stable install. Nightly builds are not tested.
+        If you want to play, use the stable release.
+      </p>
 
       <h2>Before you start</h2>
       <ul>

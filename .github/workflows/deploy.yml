@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 concurrency:
-  group: publish-ios-source
+  group: publish-ios-source-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
@@ -57,10 +57,12 @@ jobs:
             const { readdirSync, statSync } = require("node:fs");
             const files = readdirSync("ipas").filter((name) => name.endsWith(".ipa"));
             if (files.length === 0) throw new Error("ipas/ contains no IPA files.");
-            for (const entry of require("./checksums.json").files) {
+            const stable = require("./checksums.json").files
+              .filter((entry) => entry.bundleIdentifier === "com.armsx2.ios");
+            for (const entry of stable) {
               statSync(`ipas/${entry.fileName}`);
             }
-            console.log(`${files.length} IPA file(s) ready to publish.`);
+            console.log(`${stable.length} stable IPA file(s) ready to publish.`);
           '
 
       - name: Install rsync client

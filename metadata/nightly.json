@@ -1,0 +1,11 @@
+{
+  "retain": 5,
+  "app": {
+    "name": "ARMSX2 Nightly",
+    "subtitle": "Daily test builds of ARMSX2 for iOS.",
+    "localizedDescription": "Automated builds of ARMSX2 for iOS, produced from the latest code most days.\n\nRead this before installing:\nNightly builds are not tested. They can crash, run slower than the stable release, break games that used to work, or fail to start at all. If you want to play, install ARMSX2 iOS instead.\n\nNightly installs as its own app, next to the stable release rather than over it. The two keep separate save states, memory cards and settings, so trying a nightly cannot disturb a working stable install. Data is not shared between them either, so anything you save in one stays there.\n\nThe same iOS requirements apply. A JIT-capable setup is required for playable performance, and compatibility varies by device, iOS version, game and sideloading environment.\n\nARMSX2 does not include games or BIOS files. Users must provide their own legally obtained BIOS and game backups, such as ISO files. ARMSX2 is not affiliated with Sony Interactive Entertainment or PlayStation.",
+    "tintColor": "#AD6F2F"
+  },
+  "permissions": [],
+  "builds": []
+}

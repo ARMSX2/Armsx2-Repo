@@ -1,6 +1,12 @@
 import { basename, extname, join, relative, resolve, sep } from "node:path";
 
-import { bundleIdentifier, repositoryRoot, sourceIdentifier } from "./constants.js";
+import {
+  bundleIdentifier,
+  nightlyBundleIdentifier,
+  nightlyDirectory,
+  repositoryRoot,
+  sourceIdentifier,
+} from "./constants.js";
 import { SourceGenerationError } from "./errors.js";
 import {
   existingVersionDescriptions,
@@ -55,6 +61,53 @@ const findScreenshotFiles = async (generatorOptions, metadataPayload) => {
     .sort((leftPath, rightPath) => leftPath.localeCompare(rightPath, undefined, { numeric: true }));
 };
 
+export const nightlyLedger = async (generatorOptions) => {
+  const ledgerPath = resolve(repositoryRoot, generatorOptions.nightlyPath);
+  const ledger = await optionalJsonDocument(ledgerPath, {});
+
+  return {
+    retain: ledger.retain ?? 5,
+    app: ledger.app ?? {},
+    permissions: ledger.permissions ?? [],
+    builds: ledger.builds ?? [],
+  };
+};
+
+// The nightly IPAs are never kept in the repository, so their manifests come
+// from the ledger rather than from a file on disk.
+const nightlyManifest = (build, generatorOptions) => ({
+  fileName: build.fileName,
+  bundleIdentifier: nightlyBundleIdentifier,
+  version: build.version,
+  buildVersion: build.buildVersion,
+  date: build.date,
+  sourceTimestamp: build.publishedAt,
+  downloadURL: publicAssetUrl(generatorOptions.baseUrl, `${nightlyDirectory}/${build.fileName}`),
+  size: build.size,
+  sha256: build.sha256,
+  minOSVersion: build.minOSVersion ?? null,
+  maxOSVersion: build.maxOSVersion ?? null,
+  localizedDescription: build.localizedDescription,
+});
+
+const nightlyChannelBuild = (ledger, generatorOptions) => {
+  if (ledger.builds.length === 0) {
+    return null;
+  }
+
+  return {
+    channel: {
+      name: ledger.app.name ?? "ARMSX2 Nightly",
+      bundleIdentifier: nightlyBundleIdentifier,
+      subtitle: ledger.app.subtitle,
+      localizedDescription: ledger.app.localizedDescription,
+      tintColor: ledger.app.tintColor,
+      permissions: ledger.permissions,
+    },
+    manifests: ledger.builds.map((build) => nightlyManifest(build, generatorOptions)),
+  };
+};
+
 const compactObject = (record) =>
   Object.fromEntries(
     Object.entries(record).filter(([, recordValue]) => recordValue !== null && recordValue !== undefined),
@@ -72,28 +125,35 @@ const sourceVersion = (manifest) =>
     maxOSVersion: manifest.maxOSVersion,
   });
 
-const sourceApp = (ipaFileManifests, generatorOptions, metadataPayload, screenshotFiles) =>
+const stableChannelApp = (metadataPayload) => ({
+  name: "ARMSX2 iOS",
+  bundleIdentifier,
+  subtitle: metadataPayload.app.subtitle ?? "Modern PlayStation 2 emulation for iOS.",
+  localizedDescription: metadataPayload.app.localizedDescription
+    ?? "ARMSX2 brings PlayStation 2 emulation to iOS devices. Based on the open-source PCSX2 project, this ARM64-focused iOS build helps you revisit and preserve your own legally obtained PS2 game library on modern mobile hardware.",
+  tintColor: "#2F6FAD",
+});
+
+const sourceApp = (channel, ipaFileManifests, generatorOptions, screenshotFiles) =>
   compactObject({
-    name: "ARMSX2 iOS",
-    bundleIdentifier,
+    name: channel.name,
+    bundleIdentifier: channel.bundleIdentifier,
     developerName: "ARMSX2",
-    subtitle: metadataPayload.app.subtitle ?? "Modern PlayStation 2 emulation for iOS.",
-    localizedDescription: metadataPayload.app.localizedDescription
-      ?? "ARMSX2 brings PlayStation 2 emulation to iOS devices. Based on the open-source PCSX2 project, this ARM64-focused iOS build helps you revisit and preserve your own legally obtained PS2 game library on modern mobile hardware.",
+    subtitle: channel.subtitle,
+    localizedDescription: channel.localizedDescription,
     iconURL: publicAssetUrl(generatorOptions.baseUrl, iconFile),
     screenshotURLs: screenshotFiles.map((screenshotFile) => publicAssetUrl(generatorOptions.baseUrl, screenshotFile)),
-    tintColor: "#2F6FAD",
+    tintColor: channel.tintColor,
     versions: ipaFileManifests.map(sourceVersion),
-    permissions: ipaFileManifests[0]?.permissions?.length
-      ? ipaFileManifests[0].permissions
-      : undefined,
+    permissions: channel.permissions?.length ? channel.permissions : undefined,
   });
 
-const sourcePayload = (ipaFileManifests, generatorOptions, metadataPayload, screenshotFiles) => ({
+const sourcePayload = (channelBuilds, generatorOptions, screenshotFiles) => ({
   name: "ARMSX2 iOS",
   identifier: sourceIdentifier,
   sourceURL: publicAssetUrl(generatorOptions.baseUrl, "apps.json"),
-  apps: [sourceApp(ipaFileManifests, generatorOptions, metadataPayload, screenshotFiles)],
+  apps: channelBuilds.map(({ channel, manifests }) =>
+    sourceApp(channel, manifests, generatorOptions, screenshotFiles)),
 });
 
 const checksumFileEntry = (manifest) => ({
@@ -107,11 +167,11 @@ const checksumFileEntry = (manifest) => ({
   sha256: manifest.sha256,
 });
 
-const checksumPayload = (ipaFileManifests, generatorOptions) => ({
+const checksumPayload = (channelBuilds, generatorOptions) => ({
   sourceIdentifier,
   sourceURL: publicAssetUrl(generatorOptions.baseUrl, "apps.json"),
-  generatedAt: ipaFileManifests[0]?.sourceTimestamp ?? null,
-  files: ipaFileManifests.map(checksumFileEntry),
+  generatedAt: channelBuilds[0]?.manifests[0]?.sourceTimestamp ?? null,
+  files: channelBuilds.flatMap(({ manifests }) => manifests.map(checksumFileEntry)),
 });
 
 export const generatedBuffers = async (generatorOptions) => {
@@ -145,10 +205,17 @@ export const generatedBuffers = async (generatorOptions) => {
     );
   }
 
+  const ledger = await nightlyLedger(generatorOptions);
+  const stableBuild = {
+    channel: { ...stableChannelApp(metadataPayload), permissions: ipaFileManifests[0]?.permissions },
+    manifests: ipaFileManifests,
+  };
+  const channelBuilds = [stableBuild, nightlyChannelBuild(ledger, generatorOptions)].filter(Boolean);
+
   return {
-    source: jsonBuffer(sourcePayload(ipaFileManifests, generatorOptions, metadataPayload, screenshotFiles)),
-    checksums: jsonBuffer(checksumPayload(ipaFileManifests, generatorOptions)),
+    source: jsonBuffer(sourcePayload(channelBuilds, generatorOptions, screenshotFiles)),
+    checksums: jsonBuffer(checksumPayload(channelBuilds, generatorOptions)),
     screenshotFiles,
-    ipaCount: ipaFileManifests.length,
+    ipaCount: channelBuilds.reduce((total, { manifests }) => total + manifests.length, 0),
   };
 };

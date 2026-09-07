@@ -12,6 +12,7 @@
     "generate:source": "node scripts/generate-source.js",
     "check:source": "node scripts/generate-source.js --check",
     "sync:upstream": "node scripts/sync-upstream-ipa.js",
+    "mirror:nightly": "node scripts/mirror-nightly.js",
     "validate:source": "node scripts/validate-source.js",
     "smoke:live": "node scripts/smoke-live.js"
   },
