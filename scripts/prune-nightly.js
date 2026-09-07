@@ -1,10 +1,17 @@
 #!/usr/bin/env node
 
+import { resolve } from "node:path";
 import { pathToFileURL } from "node:url";
 
 import { parseOptions, setOptionValue } from "./cli.js";
-import { canonicalSourceUrl, nightlyBundleIdentifier, nightlyDirectory } from "./constants.js";
+import {
+  canonicalSourceUrl,
+  nightlyBundleIdentifier,
+  nightlyDirectory,
+  repositoryRoot,
+} from "./constants.js";
 import { UpstreamSyncError } from "./errors.js";
+import { optionalJsonDocument } from "./source-utils.js";
 
 // Deliberately narrow: exactly what publishedFileName produces, and the
 // hidden temp name rsync leaves behind when a transfer is interrupted.
@@ -13,12 +20,16 @@ const abandonedUpload = /^\.ARMSX2-Nightly-\d{8}-[0-9a-f]{7,40}\.ipa\.[A-Za-z0-9
 
 const defaults = {
   sourceUrl: canonicalSourceUrl,
+  nightlyPath: "metadata/nightly.json",
 };
 
 const parseArguments = (cliArguments) => parseOptions(
   cliArguments,
   defaults,
-  { "--source-url": setOptionValue("sourceUrl") },
+  {
+    "--source-url": setOptionValue("sourceUrl"),
+    "--nightly": setOptionValue("nightlyPath"),
+  },
   (message) => new UpstreamSyncError(message),
 );
 
@@ -36,6 +47,15 @@ export const publishedNightlyFileNames = (sourceJson) => new Set(
     })
     .filter(Boolean),
 );
+
+export const ledgerNightlyFileNames = (ledger) => new Set(
+  (ledger.builds ?? []).map((build) => build.fileName).filter(Boolean),
+);
+
+export const retainedNightlyFileNames = (sourceJson, ledger) => new Set([
+  ...publishedNightlyFileNames(sourceJson),
+  ...ledgerNightlyFileNames(ledger),
+]);
 
 // Anything unrecognised is left alone: we only delete our own files.
 export const prunableNightlies = (remoteNames, publishedNames) => {
@@ -68,8 +88,12 @@ const readStdin = async () => {
   return Buffer.concat(chunks).toString("utf8");
 };
 
-// The live document is the authority, not the working tree: a build stops being
-// prunable only once the source that stopped naming it is actually published.
+// A build is safe to delete only when neither the ledger nor the live document
+// names it. Both halves matter, and in opposite directions. The ledger covers a
+// build that was just uploaded, because publishing it is a separate deploy that
+// has not run yet — without this the prune deletes the upload it just made. The
+// live document covers a build the ledger has already dropped, which someone may
+// still be downloading until the new document is actually served.
 const liveSource = async (sourceUrl) => {
   const response = await fetch(sourceUrl, { headers: { Accept: "application/json" } });
 
@@ -83,8 +107,9 @@ const liveSource = async (sourceUrl) => {
 const runPrune = async () => {
   const pruneOptions = parseArguments(process.argv.slice(2));
   const remoteNames = (await readStdin()).split("\n").map((line) => line.trim()).filter(Boolean);
-  const published = publishedNightlyFileNames(await liveSource(pruneOptions.sourceUrl));
-  const { remove, keep, unknown } = prunableNightlies(remoteNames, published);
+  const ledger = await optionalJsonDocument(resolve(repositoryRoot, pruneOptions.nightlyPath));
+  const kept = retainedNightlyFileNames(await liveSource(pruneOptions.sourceUrl), ledger);
+  const { remove, keep, unknown } = prunableNightlies(remoteNames, kept);
 
   for (const name of unknown) {
     console.error(`Leaving ${nightlyDirectory}/${name} alone: not a name this tool publishes.`);
