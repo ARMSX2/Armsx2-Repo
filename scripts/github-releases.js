@@ -58,7 +58,8 @@ export const fetchGithubReleases = async (generatorOptions, metadataPayload) => 
 
 const escapedRegExp = (patternText) => patternText.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
 
-// Some Android releases attach an old iOS build, so the tag is what settles it.
+// The tag is the only reliable signal. Android releases sometimes attach an old
+// iOS build, which makes the assets lie.
 export const iosReleaseVersion = (tagName) => String(tagName ?? "").match(/^iOS[v-]?(\d.*)$/iu)?.[1] ?? null;
 
 const releaseMatchesManifest = (githubRelease, manifest) => {
@@ -99,8 +100,8 @@ const trimmedToBudget = (paragraph) => {
   return clipped.slice(0, clipped.lastIndexOf(" ")).trimEnd();
 };
 
-// Whole paragraphs only, so a cut never lands mid-sentence, and never on a
-// heading whose section did not fit.
+// Cut on paragraph boundaries. Drop a trailing heading as well — one whose
+// section did not fit just reads as an empty section.
 const withinBudget = (paragraphs) => {
   const kept = [];
   let usedCharacters = 0;

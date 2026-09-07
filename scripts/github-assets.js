@@ -38,7 +38,7 @@ export const githubReleases = async (repositoryName) => {
   return releasePayload;
 };
 
-// Hashes while it streams, so the file is never read a second time.
+// Hashing here saves a second pass over the file.
 export const downloadAssetToFile = async (releaseAsset, outputPath) => {
   const assetResponse = await fetch(releaseAsset.url, {
     headers: githubHeaders("application/octet-stream"),

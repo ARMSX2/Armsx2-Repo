@@ -6,8 +6,8 @@ export const nightlyAssetPattern = /^ARMSX2-nightly-(\d{8})-([0-9a-f]{7,40})-iOS
 export const isNightlyRelease = (release) =>
   Boolean(release?.prerelease) && !release.draft && nightlyTagPattern.test(release.tag_name ?? "");
 
-// A single nightly tag can carry several iOS builds from different commits the
-// same day, so the newest build is found by asset time, not by release.
+// One nightly tag can hold several iOS builds, from different commits on the
+// same day. Asset time is the only thing that orders them.
 export const nightlyCandidates = (releases) =>
   (releases ?? [])
     .filter(isNightlyRelease)
