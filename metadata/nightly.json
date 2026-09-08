@@ -19,6 +19,20 @@
   ],
   "builds": [
     {
+      "fileName": "ARMSX2-Nightly-20260908-fd8a8403bc.ipa",
+      "version": "2.5.3-nightly.20260908.1322",
+      "buildVersion": "253",
+      "upstreamVersion": "2.5.3",
+      "tag": "nightly-20260908",
+      "commit": "fd8a8403bc",
+      "date": "2026-09-08",
+      "publishedAt": "2026-09-08T13:22:12Z",
+      "size": 26819360,
+      "sha256": "074760e1fafde665ae5f54f32db10eb24ab9d75e59ec9c6708633f8ad0761604",
+      "minOSVersion": "17.0",
+      "localizedDescription": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260908\n\n- Android: add --application-id passthrough to the universal-page build\n- Android: install tar+zstd texture packs through the in-tree zstd decoder\n- GS: KTX1 mip-chain replacement textures for ASTC\n- GS: let the libretro core carry shaderc instead of dlopening one\n- libretro: send the emulator's own warnings and errors to the frontend\n- GS, GameDB, Patch: carry the resources in the binary, so none are needed on disk\n- Android: keep the host stubs out of the libretro core"
+    },
+    {
       "fileName": "ARMSX2-Nightly-20260907-b69fbed079.ipa",
       "version": "2.5.3-nightly.20260907.1443",
       "buildVersion": "253",

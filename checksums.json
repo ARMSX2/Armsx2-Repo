@@ -14,6 +14,16 @@
       "sha256": "0ee580a181560a4e266e19ad0c3eb9cac3ea5da79601f6cf727b1be1c33c63f4"
     },
     {
+      "fileName": "ARMSX2-Nightly-20260908-fd8a8403bc.ipa",
+      "bundleIdentifier": "com.armsx2.ios.nightly",
+      "version": "2.5.3-nightly.20260908.1322",
+      "buildVersion": "253",
+      "date": "2026-09-08",
+      "downloadURL": "https://ios.armsx2.net/ipas/nightly/ARMSX2-Nightly-20260908-fd8a8403bc.ipa",
+      "size": 26819360,
+      "sha256": "074760e1fafde665ae5f54f32db10eb24ab9d75e59ec9c6708633f8ad0761604"
+    },
+    {
       "fileName": "ARMSX2-Nightly-20260907-b69fbed079.ipa",
       "bundleIdentifier": "com.armsx2.ios.nightly",
       "version": "2.5.3-nightly.20260907.1443",
