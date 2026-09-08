@@ -155,6 +155,29 @@
         border: 1px solid var(--line);
       }
 
+      .channels { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s3); }
+
+      .channel {
+        display: flex;
+        gap: var(--s3);
+        padding: var(--s4);
+        border: 1px solid var(--line);
+        border-radius: var(--r-md);
+        background: var(--panel);
+      }
+
+      .channel img {
+        width: 44px;
+        height: 44px;
+        border-radius: var(--r-md);
+        border: 1px solid var(--line-soft);
+        flex: 0 0 auto;
+      }
+
+      .channel h3 { margin: 0; font-size: 1rem; font-weight: 600; }
+      .channel p { margin: var(--s1) 0 0; font-size: var(--fs-sm); }
+      .channels-note { margin: var(--s4) 0 0; }
+
       .rows div {
         display: flex;
         justify-content: space-between;
@@ -204,6 +227,8 @@
         }
 
         .shots img { scroll-snap-align: start; }
+
+        .channels { grid-template-columns: 1fr; }
       }
 
       /* iPhone SE. 190px for the URL beside the button, and the tracking is
@@ -253,13 +278,26 @@
       </section>
 
       <section>
-        <h2>Two channels, one source</h2>
-        <p>
-          <strong>ARMSX2 iOS</strong> is the stable release. <strong>ARMSX2 Nightly</strong> is
-          the latest code, built automatically most days, so new features land there first. It
-          sees less testing than a release, so expect the odd bug. They install as separate apps
-          and keep separate save states, memory cards and settings, so a nightly cannot disturb
-          a working stable install.
+        <h2>Two channels</h2>
+        <div class="channels">
+          <div class="channel">
+            <img src="/assets/icon.png?v=d83ffc2a" alt="" width="512" height="512">
+            <div>
+              <h3>ARMSX2 iOS</h3>
+              <p>The tested release. Start here.</p>
+            </div>
+          </div>
+          <div class="channel">
+            <img src="/assets/icon-nightly.png?v=1ce15bef" alt="" width="512" height="512">
+            <div>
+              <h3>ARMSX2 Nightly</h3>
+              <p>Fresh code, most days. New features arrive here first, and so do the bugs.</p>
+            </div>
+          </div>
+        </div>
+        <p class="channels-note">
+          They install side by side, with separate save states, memory cards and settings.
+          Trying a nightly leaves your stable install untouched.
         </p>
       </section>
 
