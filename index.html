@@ -29,7 +29,7 @@
         --s8: 4rem;
 
         --fs-sm: 0.85rem;
-        --fs-mono: 0.88rem;
+        --fs-url: 0.95rem;
         --fs-lg: 1.3rem;
         --fs-xl: 2rem;
 
@@ -113,10 +113,10 @@
         background: var(--panel);
       }
 
-      .url code {
+      .url span {
         flex: 1 1 auto;
-        font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-        font-size: var(--fs-mono);
+        font-size: var(--fs-url);
+        letter-spacing: 0.01em;
         overflow-wrap: anywhere;
       }
 
@@ -193,9 +193,6 @@
         .identity img { width: 88px; height: 88px; border-radius: var(--r-lg); }
         h1 { font-size: 1.5rem; }
 
-        /* The scheme is the only thing that will not fit beside the button. */
-        .url .scheme { display: none; }
-
         .shots {
           grid-auto-flow: column;
           grid-template-columns: none;
@@ -207,6 +204,15 @@
         }
 
         .shots img { scroll-snap-align: start; }
+      }
+
+      /* iPhone SE. 190px for the URL beside the button, and the tracking is
+         worth about 5px of that, which is the whole margin. */
+      @media (max-width: 22rem) {
+        :root { --fs-url: 0.78rem; }
+        .url span { letter-spacing: normal; }
+        .url { gap: var(--s2); }
+        .url button { min-width: 4rem; }
       }
     </style>
   </head>
@@ -229,7 +235,7 @@
         <p class="hint">Those only do anything on the device with the app installed.</p>
 
         <div class="url">
-          <code id="source-url" data-url="https://ios.armsx2.net/apps.json"><span class="scheme">https://</span>ios.armsx2.net/apps.json</code>
+          <span id="source-url" data-url="https://ios.armsx2.net/apps.json">https://<wbr>ios.armsx2.net/apps.json</span>
           <button id="copy" type="button" hidden>Copy</button>
         </div>
       </div>
