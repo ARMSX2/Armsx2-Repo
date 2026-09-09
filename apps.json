@@ -76,8 +76,19 @@
       ],
       "tintColor": "#954CD5",
       "category": "games",
-      "size": 26819360,
+      "size": 26818640,
       "versions": [
+        {
+          "version": "2.5.3-nightly.20260909.1326",
+          "buildVersion": "253",
+          "buildNumber": "253",
+          "date": "2026-09-09",
+          "localizedDescription": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260909\n\n- ImGui: don't abort when a font resource is missing",
+          "downloadURL": "https://ios.armsx2.net/ipas/nightly/ARMSX2-Nightly-20260909-cb6f53582a.ipa",
+          "size": 26818640,
+          "sha256": "323a3976b7abb649c3d7f2474548edaaba5886e18a5c1cd4668725dc37a22a1e",
+          "minOSVersion": "17.0"
+        },
         {
           "version": "2.5.3-nightly.20260908.1322",
           "buildVersion": "253",
@@ -182,11 +193,11 @@
       "notify": false
     },
     {
-      "title": "ARMSX2 Nightly 2026-09-08",
+      "title": "ARMSX2 Nightly 2026-09-09",
       "identifier": "ios-nightly-latest",
-      "caption": "- Android: add --application-id passthrough to the universal-page build - Android: install tar+zstd texture packs through the in-tree zstd decoder - GS: KTX1 mip-chain replacement textures for ASTC - GS: let the libretro core carry shaderc…",
-      "date": "2026-09-08T13:22:12Z",
-      "url": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260908",
+      "caption": "- ImGui: don't abort when a font resource is missing",
+      "date": "2026-09-09T13:26:40Z",
+      "url": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260909",
       "appID": "com.armsx2.ios.nightly",
       "imageURL": "https://ios.armsx2.net/assets/icon-nightly.png?v=1ce15bef",
       "tintColor": "#954CD5",

@@ -19,6 +19,20 @@
   ],
   "builds": [
     {
+      "fileName": "ARMSX2-Nightly-20260909-cb6f53582a.ipa",
+      "version": "2.5.3-nightly.20260909.1326",
+      "buildVersion": "253",
+      "upstreamVersion": "2.5.3",
+      "tag": "nightly-20260909",
+      "commit": "cb6f53582a",
+      "date": "2026-09-09",
+      "publishedAt": "2026-09-09T13:26:40Z",
+      "size": 26818640,
+      "sha256": "323a3976b7abb649c3d7f2474548edaaba5886e18a5c1cd4668725dc37a22a1e",
+      "minOSVersion": "17.0",
+      "localizedDescription": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260909\n\n- ImGui: don't abort when a font resource is missing"
+    },
+    {
       "fileName": "ARMSX2-Nightly-20260908-fd8a8403bc.ipa",
       "version": "2.5.3-nightly.20260908.1322",
       "buildVersion": "253",
