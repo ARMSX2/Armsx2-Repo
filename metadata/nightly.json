@@ -19,6 +19,20 @@
   ],
   "builds": [
     {
+      "fileName": "ARMSX2-Nightly-20260911-9027cd3acf.ipa",
+      "version": "2.5.3-nightly.20260911.1321",
+      "buildVersion": "253",
+      "upstreamVersion": "2.5.3",
+      "tag": "nightly-20260911",
+      "commit": "9027cd3acf",
+      "date": "2026-09-11",
+      "publishedAt": "2026-09-11T13:21:20Z",
+      "size": 26820579,
+      "sha256": "9a9fa5f664c19109a6043a0c1eb0533c0d816bedc7cd96bfacc4704cbfe02018",
+      "minOSVersion": "17.0",
+      "localizedDescription": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260911\n\n- Libretro: keep the VFS stream table out of static destruction entirely\n- Libretro: keep the VFS stream registry alive to the end\n- Libretro: open the disc through the frontend's file system too"
+    },
+    {
       "fileName": "ARMSX2-Nightly-20260909-cb6f53582a.ipa",
       "version": "2.5.3-nightly.20260909.1326",
       "buildVersion": "253",

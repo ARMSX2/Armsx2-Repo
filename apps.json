@@ -76,8 +76,19 @@
       ],
       "tintColor": "#954CD5",
       "category": "games",
-      "size": 26818640,
+      "size": 26820579,
       "versions": [
+        {
+          "version": "2.5.3-nightly.20260911.1321",
+          "buildVersion": "253",
+          "buildNumber": "253",
+          "date": "2026-09-11",
+          "localizedDescription": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260911\n\n- Libretro: keep the VFS stream table out of static destruction entirely\n- Libretro: keep the VFS stream registry alive to the end\n- Libretro: open the disc through the frontend's file system too",
+          "downloadURL": "https://ios.armsx2.net/ipas/nightly/ARMSX2-Nightly-20260911-9027cd3acf.ipa",
+          "size": 26820579,
+          "sha256": "9a9fa5f664c19109a6043a0c1eb0533c0d816bedc7cd96bfacc4704cbfe02018",
+          "minOSVersion": "17.0"
+        },
         {
           "version": "2.5.3-nightly.20260909.1326",
           "buildVersion": "253",
@@ -193,11 +204,11 @@
       "notify": false
     },
     {
-      "title": "ARMSX2 Nightly 2026-09-09",
+      "title": "ARMSX2 Nightly 2026-09-11",
       "identifier": "ios-nightly-latest",
-      "caption": "- ImGui: don't abort when a font resource is missing",
-      "date": "2026-09-09T13:26:40Z",
-      "url": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260909",
+      "caption": "- Libretro: keep the VFS stream table out of static destruction entirely - Libretro: keep the VFS stream registry alive to the end - Libretro: open the disc through the frontend's file system too",
+      "date": "2026-09-11T13:21:20Z",
+      "url": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260911",
       "appID": "com.armsx2.ios.nightly",
       "imageURL": "https://ios.armsx2.net/assets/icon-nightly.png?v=1ce15bef",
       "tintColor": "#954CD5",
