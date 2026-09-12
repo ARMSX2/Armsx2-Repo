@@ -19,6 +19,20 @@
   ],
   "builds": [
     {
+      "fileName": "ARMSX2-Nightly-20260912-bfae0f5a12.ipa",
+      "version": "2.5.3-nightly.20260912.1232",
+      "buildVersion": "253",
+      "upstreamVersion": "2.5.3",
+      "tag": "nightly-20260912",
+      "commit": "bfae0f5a12",
+      "date": "2026-09-12",
+      "publishedAt": "2026-09-12T12:32:58Z",
+      "size": 26820582,
+      "sha256": "27b042797f28a48814a649aa1cead641927e235306b69911e36a269e078b2a97",
+      "minOSVersion": "17.0",
+      "localizedDescription": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260912\n\n- Libretro: keep the frame size steady between real frames"
+    },
+    {
       "fileName": "ARMSX2-Nightly-20260911-9027cd3acf.ipa",
       "version": "2.5.3-nightly.20260911.1321",
       "buildVersion": "253",

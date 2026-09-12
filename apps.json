@@ -76,8 +76,19 @@
       ],
       "tintColor": "#954CD5",
       "category": "games",
-      "size": 26820579,
+      "size": 26820582,
       "versions": [
+        {
+          "version": "2.5.3-nightly.20260912.1232",
+          "buildVersion": "253",
+          "buildNumber": "253",
+          "date": "2026-09-12",
+          "localizedDescription": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260912\n\n- Libretro: keep the frame size steady between real frames",
+          "downloadURL": "https://ios.armsx2.net/ipas/nightly/ARMSX2-Nightly-20260912-bfae0f5a12.ipa",
+          "size": 26820582,
+          "sha256": "27b042797f28a48814a649aa1cead641927e235306b69911e36a269e078b2a97",
+          "minOSVersion": "17.0"
+        },
         {
           "version": "2.5.3-nightly.20260911.1321",
           "buildVersion": "253",
@@ -204,11 +215,11 @@
       "notify": false
     },
     {
-      "title": "ARMSX2 Nightly 2026-09-11",
+      "title": "ARMSX2 Nightly 2026-09-12",
       "identifier": "ios-nightly-latest",
-      "caption": "- Libretro: keep the VFS stream table out of static destruction entirely - Libretro: keep the VFS stream registry alive to the end - Libretro: open the disc through the frontend's file system too",
-      "date": "2026-09-11T13:21:20Z",
-      "url": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260911",
+      "caption": "- Libretro: keep the frame size steady between real frames",
+      "date": "2026-09-12T12:32:58Z",
+      "url": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260912",
       "appID": "com.armsx2.ios.nightly",
       "imageURL": "https://ios.armsx2.net/assets/icon-nightly.png?v=1ce15bef",
       "tintColor": "#954CD5",
