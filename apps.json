@@ -76,8 +76,19 @@
       ],
       "tintColor": "#954CD5",
       "category": "games",
-      "size": 26820582,
+      "size": 26819817,
       "versions": [
+        {
+          "version": "2.5.3-nightly.20260913.1351",
+          "buildVersion": "253",
+          "buildNumber": "253",
+          "date": "2026-09-13",
+          "localizedDescription": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260913\n\n- GS: don't snap a sprite's far edge into the sprite beside it\n- Android: try the B2 texture catalog first",
+          "downloadURL": "https://ios.armsx2.net/ipas/nightly/ARMSX2-Nightly-20260913-bb60aaf88f.ipa",
+          "size": 26819817,
+          "sha256": "0304369d4094866ce066adc1fc3d88d15c8287e4c2598aec720fcde41076f384",
+          "minOSVersion": "17.0"
+        },
         {
           "version": "2.5.3-nightly.20260912.1232",
           "buildVersion": "253",
@@ -120,17 +131,6 @@
           "downloadURL": "https://ios.armsx2.net/ipas/nightly/ARMSX2-Nightly-20260908-fd8a8403bc.ipa",
           "size": 26819360,
           "sha256": "074760e1fafde665ae5f54f32db10eb24ab9d75e59ec9c6708633f8ad0761604",
-          "minOSVersion": "17.0"
-        },
-        {
-          "version": "2.5.3-nightly.20260907.1443",
-          "buildVersion": "253",
-          "buildNumber": "253",
-          "date": "2026-09-07",
-          "localizedDescription": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260907\n\n- GameDB: fix Jak X softlocking on \"Saving Data\" after a profile save\n- iOS: a texture handed to PresentRect owes us its clear already flushed\n- iOS: the boot window was presenting a texture nothing ever wrote",
-          "downloadURL": "https://ios.armsx2.net/ipas/nightly/ARMSX2-Nightly-20260907-b69fbed079.ipa",
-          "size": 26817536,
-          "sha256": "31a795ce10d172f6439c677f353196fe50cf633c3cff16b6f31731e0cc69ab51",
           "minOSVersion": "17.0"
         }
       ],
@@ -215,11 +215,11 @@
       "notify": false
     },
     {
-      "title": "ARMSX2 Nightly 2026-09-12",
+      "title": "ARMSX2 Nightly 2026-09-13",
       "identifier": "ios-nightly-latest",
-      "caption": "- Libretro: keep the frame size steady between real frames",
-      "date": "2026-09-12T12:32:58Z",
-      "url": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260912",
+      "caption": "- GS: don't snap a sprite's far edge into the sprite beside it - Android: try the B2 texture catalog first",
+      "date": "2026-09-13T13:51:37Z",
+      "url": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260913",
       "appID": "com.armsx2.ios.nightly",
       "imageURL": "https://ios.armsx2.net/assets/icon-nightly.png?v=1ce15bef",
       "tintColor": "#954CD5",

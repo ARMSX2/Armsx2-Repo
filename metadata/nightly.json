@@ -19,6 +19,20 @@
   ],
   "builds": [
     {
+      "fileName": "ARMSX2-Nightly-20260913-bb60aaf88f.ipa",
+      "version": "2.5.3-nightly.20260913.1351",
+      "buildVersion": "253",
+      "upstreamVersion": "2.5.3",
+      "tag": "nightly-20260913",
+      "commit": "bb60aaf88f",
+      "date": "2026-09-13",
+      "publishedAt": "2026-09-13T13:51:37Z",
+      "size": 26819817,
+      "sha256": "0304369d4094866ce066adc1fc3d88d15c8287e4c2598aec720fcde41076f384",
+      "minOSVersion": "17.0",
+      "localizedDescription": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260913\n\n- GS: don't snap a sprite's far edge into the sprite beside it\n- Android: try the B2 texture catalog first"
+    },
+    {
       "fileName": "ARMSX2-Nightly-20260912-bfae0f5a12.ipa",
       "version": "2.5.3-nightly.20260912.1232",
       "buildVersion": "253",
@@ -73,20 +87,6 @@
       "sha256": "074760e1fafde665ae5f54f32db10eb24ab9d75e59ec9c6708633f8ad0761604",
       "minOSVersion": "17.0",
       "localizedDescription": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260908\n\n- Android: add --application-id passthrough to the universal-page build\n- Android: install tar+zstd texture packs through the in-tree zstd decoder\n- GS: KTX1 mip-chain replacement textures for ASTC\n- GS: let the libretro core carry shaderc instead of dlopening one\n- libretro: send the emulator's own warnings and errors to the frontend\n- GS, GameDB, Patch: carry the resources in the binary, so none are needed on disk\n- Android: keep the host stubs out of the libretro core"
-    },
-    {
-      "fileName": "ARMSX2-Nightly-20260907-b69fbed079.ipa",
-      "version": "2.5.3-nightly.20260907.1443",
-      "buildVersion": "253",
-      "upstreamVersion": "2.5.3",
-      "tag": "nightly-20260907",
-      "commit": "b69fbed079",
-      "date": "2026-09-07",
-      "publishedAt": "2026-09-07T14:43:45Z",
-      "size": 26817536,
-      "sha256": "31a795ce10d172f6439c677f353196fe50cf633c3cff16b6f31731e0cc69ab51",
-      "minOSVersion": "17.0",
-      "localizedDescription": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260907\n\n- GameDB: fix Jak X softlocking on \"Saving Data\" after a profile save\n- iOS: a texture handed to PresentRect owes us its clear already flushed\n- iOS: the boot window was presenting a texture nothing ever wrote"
     }
   ]
 }
