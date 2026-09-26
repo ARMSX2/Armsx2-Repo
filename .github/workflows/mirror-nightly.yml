@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: source-update
@@ -22,21 +23,8 @@ jobs:
       SSH_OPTIONS: -o StrictHostKeyChecking=yes -o UserKnownHostsFile=.ssh-known-hosts
 
     steps:
-      # A push made with GITHUB_TOKEN does not start another workflow, so the
-      # deploy would never run and the nightly would never reach the site.
-      - name: Require a push token that triggers the deploy
-        env:
-          SOURCE_UPDATE_TOKEN: ${{ secrets.SOURCE_UPDATE_TOKEN }}
-        run: |
-          if [ -z "$SOURCE_UPDATE_TOKEN" ]; then
-            echo "SOURCE_UPDATE_TOKEN is not set; a nightly commit would not trigger a deploy."
-            exit 1
-          fi
-
       - name: Check out repository
         uses: actions/checkout@v6
-        with:
-          token: ${{ secrets.SOURCE_UPDATE_TOKEN }}
 
       - name: Set up Node
         uses: actions/setup-node@v6
@@ -148,3 +136,12 @@ jobs:
             echo "::error::${FILE_NAME} was uploaded but is not on the server."
             exit 1
           fi
+
+      # A push made with GITHUB_TOKEN does not start another workflow, so the
+      # deploy is started here, once the nightly is known to be on the server.
+      # workflow_dispatch is exempt from that rule.
+      - name: Deploy the mirrored nightly
+        if: steps.mirror.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh workflow run deploy.yml --ref "${{ github.ref_name }}"
