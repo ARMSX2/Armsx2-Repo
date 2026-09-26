@@ -76,8 +76,19 @@
       ],
       "tintColor": "#954CD5",
       "category": "games",
-      "size": 26819817,
+      "size": 30554077,
       "versions": [
+        {
+          "version": "2.5.3-nightly.20260926.1322",
+          "buildVersion": "253",
+          "buildNumber": "253",
+          "date": "2026-09-26",
+          "localizedDescription": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260926\n\n- GunCon 2: a calibration shot for touch, and aim in surface pixels\n- USB devices: stop the keyboard switch unplugging Port 1\n- USB devices: keep the device list between games on Android\n- GunCon 2: its buttons join the touch layout, and aiming leaves the face buttons alone\n- USB devices: the port row says Not Connected, like the list below it\n- USB devices: list them with no game running, and pick one per port from a dropdown\n- Network: typing a DNS address switches that slot to Manual\n- Texture packs: make deleting a pack reliable\n- Texture packs: install a multi-region pack under the player's own serial\n- Library music: defer to media playback, not to another app's game audio\n- DEV9: bring back the Android HDD image handling\n- Keyboard: type addresses and paths\n- GameDB panel: name the copy-road blending cap and the field shift",
+          "downloadURL": "https://ios.armsx2.net/ipas/nightly/ARMSX2-Nightly-20260926-247fa6f094.ipa",
+          "size": 30554077,
+          "sha256": "ac5c1885295b604d2b9fb7992a2c1f45d39c14a6fe5675d136950f20fffdb4f9",
+          "minOSVersion": "17.4"
+        },
         {
           "version": "2.5.3-nightly.20260913.1351",
           "buildVersion": "253",
@@ -120,17 +131,6 @@
           "downloadURL": "https://ios.armsx2.net/ipas/nightly/ARMSX2-Nightly-20260909-cb6f53582a.ipa",
           "size": 26818640,
           "sha256": "323a3976b7abb649c3d7f2474548edaaba5886e18a5c1cd4668725dc37a22a1e",
-          "minOSVersion": "17.0"
-        },
-        {
-          "version": "2.5.3-nightly.20260908.1322",
-          "buildVersion": "253",
-          "buildNumber": "253",
-          "date": "2026-09-08",
-          "localizedDescription": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260908\n\n- Android: add --application-id passthrough to the universal-page build\n- Android: install tar+zstd texture packs through the in-tree zstd decoder\n- GS: KTX1 mip-chain replacement textures for ASTC\n- GS: let the libretro core carry shaderc instead of dlopening one\n- libretro: send the emulator's own warnings and errors to the frontend\n- GS, GameDB, Patch: carry the resources in the binary, so none are needed on disk\n- Android: keep the host stubs out of the libretro core",
-          "downloadURL": "https://ios.armsx2.net/ipas/nightly/ARMSX2-Nightly-20260908-fd8a8403bc.ipa",
-          "size": 26819360,
-          "sha256": "074760e1fafde665ae5f54f32db10eb24ab9d75e59ec9c6708633f8ad0761604",
           "minOSVersion": "17.0"
         }
       ],
@@ -215,11 +215,11 @@
       "notify": false
     },
     {
-      "title": "ARMSX2 Nightly 2026-09-13",
+      "title": "ARMSX2 Nightly 2026-09-26",
       "identifier": "ios-nightly-latest",
-      "caption": "- GS: don't snap a sprite's far edge into the sprite beside it - Android: try the B2 texture catalog first",
-      "date": "2026-09-13T13:51:37Z",
-      "url": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260913",
+      "caption": "- GunCon 2: a calibration shot for touch, and aim in surface pixels - USB devices: stop the keyboard switch unplugging Port 1 - USB devices: keep the device list between games on Android - GunCon 2: its buttons join the touch layout, and…",
+      "date": "2026-09-26T13:22:38Z",
+      "url": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260926",
       "appID": "com.armsx2.ios.nightly",
       "imageURL": "https://ios.armsx2.net/assets/icon-nightly.png?v=1ce15bef",
       "tintColor": "#954CD5",
