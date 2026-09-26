@@ -5,6 +5,9 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  # Update Source and Mirror Nightly push with GITHUB_TOKEN, which starts no
+  # push run, so they start this workflow directly once they have pushed.
+  workflow_dispatch:
 
 concurrency:
   group: publish-ios-source-${{ github.ref }}
@@ -41,7 +44,7 @@ jobs:
         run: npm run validate:source
 
       - name: Stage deployment tree
-        if: github.event_name == 'push'
+        if: github.ref == 'refs/heads/main'
         run: |
           rm -rf .deploy
           mkdir -p .deploy
@@ -51,7 +54,7 @@ jobs:
       # rsync --delete removes whatever is no longer published, so an empty
       # ipas/ would take the live download with it.
       - name: Guard the published IPAs
-        if: github.event_name == 'push'
+        if: github.ref == 'refs/heads/main'
         run: |
           node -e '
             const { readdirSync, statSync } = require("node:fs");
@@ -66,11 +69,11 @@ jobs:
           '
 
       - name: Install rsync client
-        if: github.event_name == 'push'
+        if: github.ref == 'refs/heads/main'
         run: sudo apt-get update && sudo apt-get install -y sshpass rsync
 
       - name: Publish the document root
-        if: github.event_name == 'push'
+        if: github.ref == 'refs/heads/main'
         env:
           SSHPASS: ${{ secrets.SERVER_PASSWORD }}
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
@@ -83,7 +86,7 @@ jobs:
       # file, so rsync's default quick check treats the IPA as changed on every
       # run and walks all 26 MB through the delta algorithm to prove otherwise.
       - name: Publish the IPAs
-        if: github.event_name == 'push'
+        if: github.ref == 'refs/heads/main'
         env:
           SSHPASS: ${{ secrets.SERVER_PASSWORD }}
           SERVER_HOST: ${{ secrets.SERVER_HOST }}
