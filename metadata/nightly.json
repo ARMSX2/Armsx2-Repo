@@ -19,6 +19,20 @@
   ],
   "builds": [
     {
+      "fileName": "ARMSX2-Nightly-20260927-e2f7d015cb.ipa",
+      "version": "2.5.3-nightly.20260927.1423",
+      "buildVersion": "253",
+      "upstreamVersion": "2.5.3",
+      "tag": "nightly-20260927",
+      "commit": "e2f7d015cb",
+      "date": "2026-09-27",
+      "publishedAt": "2026-09-27T14:23:45Z",
+      "size": 30561774,
+      "sha256": "e0da29333fc464353a3855d927aa2d81df195e0aa0e7c82e6bb932dd49f70a28",
+      "minOSVersion": "17.4",
+      "localizedDescription": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260927\n\n- Android: parenthesise the search-sections fallback\n- tests: set the full-disk file size limit in process, not in a forked child\n- GS: include <iterator> for std::back_inserter in the cache file store\n- GS: clear the shader cache on the GS thread\n- GS: cache files named by identity, so two builds keep one each\n- GS: build identity from source files only, following adds and removes\n- GS: cache store review fixes: locks, failed appends, in-place clears\n- GS/Vulkan: record pipeline keys byte for byte\n- GS: hash the cache identity's inputs from a plain glob\n- Android: wipe the GS caches on every new install, and clear all of them\n- Qt, FullscreenUI: Clear Shader Cache\n- GS: Direct3D and frame-generation caches follow the build identity\n- GS/OpenGL: program binaries on the checked store\n- GS/Vulkan: pipeline key lists stamped with the build, checked per record\n- GS/Vulkan: stamp and checksum the SPIR-V and pipeline caches\n- GS: one checked on-disk format for the shader and pipeline caches\n- GS/Vulkan: name the precompile workers within Linux's 15 characters\n- GS/Vulkan: count precompile waits and log each worker's work\n- GS/Vulkan: key lists per configuration, by session, with bounded memory\n- gsrunner: pin precompile off before the command line, not after\n- GS/Vulkan: precompile review fixes: failed jobs, cache dirtiness, indicator\n- GS: pipeline precompile only under the hardware renderer\n- gsrunner: pipeline precompile off unless asked for\n- GS/Vulkan: build each game's recorded pipelines on worker threads at start\n- GS/Vulkan: keep the SPIR-V cache across a driver change\n- GS: count shader and pipeline compilation per stage, per frame\n- tests: pin the DATE mode on a driver-ordered declared feedback loop\n- GS: serve DATE in the pass on a driver-ordered declared feedback loop\n- gsrunner: -no-stencil-buffer, to put the pre-26.2 Turnip DATE choices on one binary\n- Android: end the search jump before the collapse test runs\n- Android: settings search opens the target's section by name\n- Android: end fast-forward hold when combo modifier is released\n- Android: reveal collapsed settings search targets"
+    },
+    {
       "fileName": "ARMSX2-Nightly-20260926-247fa6f094.ipa",
       "version": "2.5.3-nightly.20260926.1322",
       "buildVersion": "253",
@@ -73,20 +87,6 @@
       "sha256": "9a9fa5f664c19109a6043a0c1eb0533c0d816bedc7cd96bfacc4704cbfe02018",
       "minOSVersion": "17.0",
       "localizedDescription": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260911\n\n- Libretro: keep the VFS stream table out of static destruction entirely\n- Libretro: keep the VFS stream registry alive to the end\n- Libretro: open the disc through the frontend's file system too"
-    },
-    {
-      "fileName": "ARMSX2-Nightly-20260909-cb6f53582a.ipa",
-      "version": "2.5.3-nightly.20260909.1326",
-      "buildVersion": "253",
-      "upstreamVersion": "2.5.3",
-      "tag": "nightly-20260909",
-      "commit": "cb6f53582a",
-      "date": "2026-09-09",
-      "publishedAt": "2026-09-09T13:26:40Z",
-      "size": 26818640,
-      "sha256": "323a3976b7abb649c3d7f2474548edaaba5886e18a5c1cd4668725dc37a22a1e",
-      "minOSVersion": "17.0",
-      "localizedDescription": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260909\n\n- ImGui: don't abort when a font resource is missing"
     }
   ]
 }
