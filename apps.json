@@ -76,8 +76,19 @@
       ],
       "tintColor": "#954CD5",
       "category": "games",
-      "size": 30561774,
+      "size": 30514213,
       "versions": [
+        {
+          "version": "2.5.3-nightly.20260928.1716",
+          "buildVersion": "253",
+          "buildNumber": "253",
+          "date": "2026-09-28",
+          "localizedDescription": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260928\n\n- Include <cstring> where our code calls it\n- GS: fuse the UV-addressed packed triple for triangle strips\n- GS: SetTag names the UV-addressed packed triple\n- tests: pin that a wider GS->GS move into a small target stays on the GPU\n- GS/TC: let a move grow its destination target's width, not only its height\n- GS: don't log hardware GS->GS moves in the transfer list\n- Counters/ADPF: report one work period per frame across the split frame limiter\n- microVU/arm64: ignore the MAC flag instance under the flag hack, not the status one\n- GS/Vulkan: make the first reader of each pass change the loop-enable value\n- gsrunner: -readback-kick-passes, the readback-frame submit spacing for an A/B\n- GS: drop the readback-source hint the Vulkan kick no longer reads\n- GS/Vulkan: let the readback-frame kick fire where a draw switches target\n- Android: ask AI agents to leave the anti-resale notice in place\n- Audio/Oboe: read at the device's burst size instead of 2048 frames\n- GS/Vulkan: present the image when acquire returns SUBOPTIMAL\n- Audio/Oboe: open the stream with the expansion mode's channel count\n- Debugger: Fix unsaved debugger breakpoints not being removed when loaded from settings.\n- GS/HW: convert lines to pixel runs in one walk, without per-pixel divides\n- GS: let a line walk's caller fix the major axis at compile time\n- tests: pin GSLineRuns::Convert byte for byte against the original\n- GS/HW: move the line pixel-run conversion into GSLineRuns\n- gsrunner: switches to size the Vulkan vertex ring for an A/B\n- GS/Vulkan: grow the vertex ring instead of draining the GPU\n- GS: decide how far a full stream ring grows instead of waiting\n- Qt: Update Base Translation.\n- GS:HW: Denormalize RT color when shuffling while blending.\n- GHActions: Disable LTO on debug builds\n- GHActions: Generate debug caches in release builds\n- GHActions: Separate debug from release caches\n- GHActions: Clean old stuff out of ccache\n- GS/Shaders: Fix up types mismatch.\n- GS/GL: Drop requirement for GL_ARB_gpu_shader5.\n- GS:Vk: Use feedback loop layout when fbfetch is disabled\n- GS/DX11: Fix null texture related crashes when device creation fails.\n- GS: Switch CAS from compute shader type to pixel shader type.\n- Qt: Update Base Translation.\n- GS:HW: Remove integer bitcast version of GSVector4::cxpr().\n- Qt: Add Controller Tester button\n- Qt: Use QHeaderView::Stretch for the game list title columns\n- GS:MTL: Mention OCLP in the no-metal-devices error\n- GS:MTL: Don't crash if no Metal device\n- GS:MTL: Bitcast float to uint before casting to uchar4.\n- Qt: Update Base Translation.\n- Qt/VMManager: Add -gamecfg command-line arg\n- Qt: Update Base Translation.\n- Deps/gha: Bump baptiste0928/cargo-install in the ci-deps group\n- GS: Bump shader cache version.\n- GS: Add missing config elements and formatting fixes.\n- EE Rec: Remove memcheck code that got the current pc op and did nothing with it\n- Imgui: remove unused functions\n- GS: Fix Wmissing-braces\n- GS:MTL: Fix gXbY shuffle bitshift in shader.\n- Qt: Update Base Translation.\n- GS/GL: Rework logging for supported extensions/features.\n- GS/GL: Expand conservative depth to the same extension variants.\n- GS: Fix some path names in baked shaders.\n- CMake: Fix WoA check for building renderers\n- Misc: Fix deprecation warnings\n- 3rdparty: Update fmt to 12.2.0\n- 3rdparty: Update rcheevos to v12.5.0\n- 3rdparty: Update xbyak to v7.41.1\n- 3rdparty: Update googletest to v1.18.0\n- 3rdparty: Update Vulkan-Headers to v1.4.362\n- 3rdparty: Update LZMA/7zipSDK to 26.03\n- Deps: Update plutosvg to v0.0.8\n- Deps: Update plutovg to v1.3.3\n- Deps: Update DirectX-Headers to 1.619.5\n- Deps: Update agilitysdk to 1.619.5\n- Redump: Update Redump Database to use one from the new site\n- GS/GSCapture: Flush stale GSCapture audio buffer during state load\n- Qt: Various other translation fixes\n- Qt: Move MemoryCardListItem into MemoryCardListWidget\n- Qt: Translate release date to system locale\n- CMake: Use correct deps path when building for WoA\n- CMake: Disable Vulkan, OpenGL and RAIntegration for WoA\n- CMake: Always link WinPixEventRuntime on Windows\n- GS/DX12: Workaround Adreno moving barriers to render passes start\n- GS/HW: Include GSDeviceVK based on ENABLE_VULKAN\n- Common: Use an asm file for WoA\n- Deps: Correct preparing to build Qt Tools for WoA\n- Deps: Build ffmpeg for WoA\n- Deps: Add Missing DirectX Dependencies for WoA\n- 3rdparty/vixl: Re-add compile fixes\n- GS/GL: Add GLAD_GL_EXT_direct_state_access fallback.\n- GS: Add some missing baked shaders.\n- Qt: Update Base Translation.\n- GS/DX: Check for TypedUAVLoadAdditionalFormats for rov.\n- GS/GL: Remove extra fb attachment binding.\n- USB: Camera enumeration regression fix\n- GS/Shaders: Fix aa1 on haswell dx11/12.\n- Qt: Preserve game list column widths across relayouts\n- Qt: Allow customizing toolbar actions\n- GS/HW: Fix DirectX Shader Compiler type warning in CAS\n- GS/DX12: Support SM6.5\n- GS/DX: Prefix log message\n- Deps: Add DirectX Shader Compiler\n- GS: Roll back to dx11 as default for haswell/broadwell again.\n- Debugger: Add placeholder text to the log field in breakpoint window.\n- Debugger: Prevent onVMActuallyPaused from refreshing the breakpoint list while actively editing the description field.\n- Debugger: Merged memcheck log and instrumentation into Log When Hit. Add breakpoint handling to psxDynarecMemcheck function. Add fix for window refreshing clobbering inputs in the breakpoint list.",
+          "downloadURL": "https://ios.armsx2.net/ipas/nightly/ARMSX2-Nightly-20260928-75e095e82b.ipa",
+          "size": 30514213,
+          "sha256": "db72f457a267d5594efbe042c9a15eef92508a1eb27a34951dee56a61788279a",
+          "minOSVersion": "17.4"
+        },
         {
           "version": "2.5.3-nightly.20260927.1423",
           "buildVersion": "253",
@@ -120,17 +131,6 @@
           "downloadURL": "https://ios.armsx2.net/ipas/nightly/ARMSX2-Nightly-20260912-bfae0f5a12.ipa",
           "size": 26820582,
           "sha256": "27b042797f28a48814a649aa1cead641927e235306b69911e36a269e078b2a97",
-          "minOSVersion": "17.0"
-        },
-        {
-          "version": "2.5.3-nightly.20260911.1321",
-          "buildVersion": "253",
-          "buildNumber": "253",
-          "date": "2026-09-11",
-          "localizedDescription": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260911\n\n- Libretro: keep the VFS stream table out of static destruction entirely\n- Libretro: keep the VFS stream registry alive to the end\n- Libretro: open the disc through the frontend's file system too",
-          "downloadURL": "https://ios.armsx2.net/ipas/nightly/ARMSX2-Nightly-20260911-9027cd3acf.ipa",
-          "size": 26820579,
-          "sha256": "9a9fa5f664c19109a6043a0c1eb0533c0d816bedc7cd96bfacc4704cbfe02018",
           "minOSVersion": "17.0"
         }
       ],
@@ -215,11 +215,11 @@
       "notify": false
     },
     {
-      "title": "ARMSX2 Nightly 2026-09-27",
+      "title": "ARMSX2 Nightly 2026-09-28",
       "identifier": "ios-nightly-latest",
-      "caption": "- Android: parenthesise the search-sections fallback - tests: set the full-disk file size limit in process, not in a forked child - GS: include <iterator> for std::back_inserter in the cache file store - GS: clear the shader cache on the…",
-      "date": "2026-09-27T14:23:45Z",
-      "url": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260927",
+      "caption": "- Include <cstring> where our code calls it - GS: fuse the UV-addressed packed triple for triangle strips - GS: SetTag names the UV-addressed packed triple - tests: pin that a wider GS->GS move into a small target stays on the GPU - GS/TC:…",
+      "date": "2026-09-28T17:16:28Z",
+      "url": "https://github.com/ARMSX2/ARMSX2/releases/tag/nightly-20260928",
       "appID": "com.armsx2.ios.nightly",
       "imageURL": "https://ios.armsx2.net/assets/icon-nightly.png?v=1ce15bef",
       "tintColor": "#954CD5",
